@@ -7,6 +7,7 @@ export default function UploadBeatButton() {
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [price, setPrice] = useState("0");
+  const [error, setError] = useState("");
 
   const openPicker = () => {
     fileRef.current?.click();
@@ -17,6 +18,7 @@ export default function UploadBeatButton() {
     if (!file) return;
 
     setLoading(true);
+    setError("");
 
     try {
       const formData = new FormData();
@@ -30,12 +32,16 @@ export default function UploadBeatButton() {
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Upload failed");
+      }
 
       alert("Beat uploaded!");
       window.location.reload();
-    } catch {
-      alert("Upload error");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload error");
     } finally {
       setLoading(false);
       event.target.value = "";
@@ -74,11 +80,12 @@ export default function UploadBeatButton() {
       <input
         ref={fileRef}
         type="file"
-        accept="audio/mpeg,audio/mp3,audio/wav"
+        accept=".mp3,.wav,audio/mpeg,audio/mp3,audio/wav,audio/x-wav"
         className="hidden"
         onChange={upload}
       />
+
+      {error ? <p className="mt-3 text-sm text-red-100">{error}</p> : null}
     </>
   );
 }
-
