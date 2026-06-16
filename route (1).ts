@@ -1,38 +1,26 @@
-@import "tailwindcss";
+export const metadata = {
+  title: "Melvey Beats",
+  description: "Beat marketplace",
+};
 
-:root {
-  --background: #f5f7fb;
-  --foreground: #0b0e13;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-::selection {
-  background: rgba(8, 145, 178, 0.3);
-  color: #0b0e13;
-}
-
-audio {
-  height: 42px;
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body
+        style={{
+          margin: 0,
+          minHeight: "100vh",
+          fontFamily: "Arial, sans-serif",
+          background: "linear-gradient(135deg, #eef7ff 0%, #dbeafe 35%, #93c5fd 100%)",
+          color: "#0f172a",
+        }}
+      >
+        {children}
+      </body>
+    </html>
+  );
 }
