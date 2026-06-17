@@ -9,8 +9,14 @@ export default async function Home() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+  // If env vars are missing, render empty UI gracefully
   if (!supabaseUrl || !supabaseAnonKey) {
-    return <HomeClient initialBeats={[]} />;
+    return (
+      <main className="max-w-6xl mx-auto px-4 py-16">
+        <h1 className="text-4xl font-black text-slate-900">Melvey Beats</h1>
+        <p className="mt-2 text-slate-500">No beats available.</p>
+      </main>
+    );
   }
 
   const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
@@ -22,14 +28,30 @@ export default async function Home() {
 
   if (error) {
     return (
-      <main className="p-6">
-        <h1 className="text-2xl font-bold">Error loading beats</h1>
-        <p className="text-red-600">{error.message}</p>
+      <main className="max-w-6xl mx-auto px-4 py-16">
+        <h1 className="text-4xl font-black text-slate-900">Melvey Beats</h1>
+        <p className="mt-4 text-red-600 font-semibold">
+          Error loading beats: {error.message}
+        </p>
       </main>
     );
   }
 
   const displayBeats = (beats ?? []).map(toDisplayBeat);
 
-  return <HomeClient initialBeats={displayBeats} />;
+  return (
+    <main className="max-w-6xl mx-auto px-4 py-16">
+      <section className="text-center mb-16">
+        <h1 className="text-5xl font-black tracking-tight text-slate-950">
+          Melvey Beats
+        </h1>
+        <p className="mt-3 text-slate-500 text-lg">
+          Premium beats curated for your next release
+        </p>
+      </section>
+
+      <HomeClient initialBeats={displayBeats} />
+    </main>
+  );
 }
+
