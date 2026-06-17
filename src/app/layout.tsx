@@ -1,7 +1,4 @@
-export const metadata = {
-  title: "Melvey Beats",
-  description: "Beat marketplace",
-};
+
 
 export default function RootLayout({
   children,
