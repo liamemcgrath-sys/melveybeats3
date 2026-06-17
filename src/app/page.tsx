@@ -13,7 +13,6 @@ export default async function Home() {
   if (!supabaseUrl || !supabaseAnonKey) {
     return (
       <main className="max-w-6xl mx-auto px-4 py-16">
-        <h1 className="text-4xl font-black text-slate-900">Melvey Beats</h1>
         <p className="mt-2 text-slate-500">No beats available.</p>
       </main>
     );
