@@ -48,51 +48,47 @@ export default function UploadBeatButton() {
   };
 
   return (
-    <div className="w-full">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <div>
-          <p className="text-sm font-black text-white">Add a beat</p>
-          <p className="text-xs text-cyan-100">MP3 or WAV</p>
-        </div>
-        <p className="rounded-md bg-white/15 px-3 py-1 text-xs font-bold text-cyan-50">
-          Owner
-        </p>
-      </div>
+    <div className="w-full rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h3 className="text-lg font-black text-slate-900">Upload Beat</h3>
 
-      <div className="grid gap-3">
-        <label className="grid gap-1 text-xs font-bold uppercase tracking-[0.16em] text-cyan-100">
-          Password
+      <div className="mt-4 grid gap-4">
+        {/* PASSWORD */}
+        <label className="grid gap-1 text-sm font-semibold text-slate-700">
+          Owner Password
           <input
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="Owner password"
-            className="h-11 rounded-md border border-white/15 bg-white px-3 text-sm font-semibold normal-case tracking-normal text-slate-950 outline-none focus:border-cyan-300"
+            placeholder="Enter password"
+            className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-cyan-500"
           />
         </label>
 
-        <label className="grid gap-1 text-xs font-bold uppercase tracking-[0.16em] text-cyan-100">
-          Price
+        {/* PRICE */}
+        <label className="grid gap-1 text-sm font-semibold text-slate-700">
+          Price (USD)
           <input
             type="number"
             min="0"
             step="0.01"
             value={price}
             onChange={(event) => setPrice(event.target.value)}
-            placeholder="Price"
-            className="h-11 rounded-md border border-white/15 bg-white px-3 text-sm font-semibold normal-case tracking-normal text-slate-950 outline-none focus:border-cyan-300"
+            placeholder="0.00"
+            className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-green-500"
           />
         </label>
       </div>
 
+      {/* BUTTON */}
       <button
         onClick={openPicker}
         disabled={loading || !password}
-        className="mt-4 h-12 w-full rounded-md bg-white text-sm font-black text-slate-950 transition hover:bg-cyan-50 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+        className="mt-5 h-12 w-full rounded-md bg-gradient-to-r from-cyan-600 to-green-500 text-sm font-black text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-slate-300"
       >
-        {loading ? "Uploading..." : "Choose beat file"}
+        {loading ? "Uploading..." : "Choose Beat File"}
       </button>
 
+      {/* HIDDEN FILE INPUT */}
       <input
         ref={fileRef}
         type="file"
@@ -101,12 +97,12 @@ export default function UploadBeatButton() {
         onChange={upload}
       />
 
-      {error ? (
-        <p className="mt-3 rounded-md bg-rose-500/15 px-3 py-2 text-sm font-semibold text-rose-100">
+      {/* ERROR */}
+      {error && (
+        <p className="mt-3 rounded-md bg-rose-100 px-3 py-2 text-sm font-semibold text-rose-700">
           {error}
         </p>
-      ) : null}
+      )}
     </div>
   );
 }
-
