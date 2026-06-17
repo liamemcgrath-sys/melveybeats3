@@ -93,7 +93,7 @@ export default function UploadBeatButton() {
         ref={fileRef}
         type="file"
         accept=".mp3,.wav,audio/mpeg,audio/mp3,audio/wav,audio/x-wav"
-        className="hidden"
+        style={{ display: "none" }}
         onChange={upload}
       />
 
