@@ -6,19 +6,17 @@ async function removeBeat(req: Request) {
     const id = body?.id;
     const password = body?.password;
 
-    // Allow admin bypass
-// Allow admin bypass
-if (password !== "ADMIN_BYPASS") {
-  if (!process.env.OWNER_PASSWORD || password !== process.env.OWNER_PASSWORD) {
-    return Response.json(
-      { success: false, error: "Unauthorized" },
-      { status: 403 },
-    );
-  }
+    // ⭐ ADMIN BYPASS
+    if (password !== "ADMIN_BYPASS") {
+      if (!process.env.OWNER_PASSWORD || password !== process.env.OWNER_PASSWORD) {
+        return Response.json(
+          { success: false, error: "Unauthorized" },
+          { status: 403 },
+        );
+      }
+    }
 
-
-
-
+    // Validate ID
     if (!id || typeof id !== "string") {
       return Response.json(
         { success: false, error: "Missing or invalid beat id" },
@@ -26,6 +24,7 @@ if (password !== "ADMIN_BYPASS") {
       );
     }
 
+    // Delete from Supabase
     const supabase = getSupabaseAdmin();
     const { error } = await supabase.from("beats").delete().eq("id", id);
 
@@ -38,6 +37,7 @@ if (password !== "ADMIN_BYPASS") {
     }
 
     return Response.json({ success: true });
+
   } catch (err) {
     console.error("Delete route error:", err);
     return Response.json(
@@ -49,4 +49,3 @@ if (password !== "ADMIN_BYPASS") {
 
 export const POST = removeBeat;
 export const DELETE = removeBeat;
-
