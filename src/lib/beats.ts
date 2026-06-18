@@ -17,8 +17,9 @@ export function toDisplayBeat(beat: Beat): DisplayBeat {
     id: beat.id,
     title: beat.title?.trim() || "Untitled",
     price: Number.isFinite(price) ? price : 0,
-    audioUrl: beat.audio_url || beat.url || "",
-    coverUrl: beat.cover_url || undefined,
-    fullAudioPath: beat.fullAudioPath || "",
+    audio_url: beat.audio_url || beat.url || "",   // MUST be audio_url
+    fullAudioPath: beat.fullAudioPath || "",       // MUST match DB + DisplayBeat
+    created_at: undefined,                         // optional
   };
 }
+
