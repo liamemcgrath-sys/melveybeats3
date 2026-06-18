@@ -9,13 +9,11 @@ export default function RootLayout({
     <html lang="en">
       <body className="min-h-screen text-slate-900">
 
-        {/* Optional Brand Accent Bar */}
+        {/* Brand Accent Bar */}
         <div className="h-1 w-full bg-gradient-to-r from-cyan-600 to-green-500" />
 
-        {/* Page Content */}
         {children}
 
-        {/* Footer */}
         <footer className="mt-20 border-t border-cyan-200 py-10 text-center text-sm text-cyan-700">
           © {new Date().getFullYear()} Melvey Beats — All rights reserved
         </footer>
