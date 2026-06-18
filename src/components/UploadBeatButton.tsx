@@ -25,30 +25,36 @@ export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
     setError("");
 
     try {
-      // ⭐ Generate 30-second preview in the browser
+      // ⭐ Generate preview (ensure it's small)
       const preview = await generatePreview(file);
+
+      if (!preview || preview.size === 0) {
+        setError("Preview generation failed");
+        setLoading(false);
+        return;
+      }
 
       // ⭐ Build form data
       const formData = new FormData();
       formData.append("full", file);
       formData.append("preview", preview);
-      formData.append("title", title);
+      formData.append("title", title.trim());
       formData.append("price", price);
       formData.append("password", isAdmin ? "ADMIN_BYPASS" : password);
 
-      // ⭐ Send to backend
+      // ⭐ Upload
       const res = await fetch("/api/add-beat", {
         method: "POST",
         body: formData,
       });
 
       const data = await res.json();
+
       if (!res.ok) {
         setError(data.error || "Upload failed");
         return;
       }
 
-      // Refresh page
       window.location.reload();
     } catch (err) {
       setError("Upload error");
