@@ -1,15 +1,10 @@
 import "./globals.css";
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="min-h-screen text-slate-900">
 
-        {/* Brand Accent Bar */}
         <div className="h-1 w-full bg-gradient-to-r from-cyan-600 to-green-500" />
 
         {children}
