@@ -1,7 +1,8 @@
 export const runtime = "nodejs";
-
-export const maxDuration = 300; // allow long uploads
+export const preferredRegion = "iad1";
 export const dynamic = "force-dynamic";
+export const maxDuration = 300; // allow long uploads
+
 
 export const config = {
   api: {
