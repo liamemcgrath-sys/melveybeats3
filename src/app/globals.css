@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* ----------------------------------------
    Root Theme Variables
@@ -12,14 +14,6 @@
   --brand-green: #22c55e;
   --brand-blue-dark: #0e7490;
   --brand-green-dark: #15803d;
-}
-
-/* Tailwind Theme Bridge */
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 /* ----------------------------------------
@@ -58,7 +52,3 @@ body {
   background: rgba(6, 182, 212, 0.25); /* cyan-500 tint */
   color: #0f172a;
 }
-
-/* ----------------------------------------
-   Audio Player
---------------------------------
