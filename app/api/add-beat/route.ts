@@ -12,7 +12,6 @@ const allowedMimeTypes = new Set([
 
 function isAllowedAudioFile(file: File) {
   const extension = file.name.split(".").pop()?.toLowerCase();
-
   return (
     allowedMimeTypes.has(file.type) ||
     extension === "mp3" ||
@@ -25,59 +24,90 @@ export async function POST(req: Request) {
     const formData = await req.formData();
 
     const password = formData.get("password") as string | null;
-    if (!process.env.OWNER_PASSWORD) {
+
+    // ⭐ ADMIN BYPASS
+    if (password !== "ADMIN_BYPASS") {
+      if (!process.env.OWNER_PASSWORD || password !== process.env.OWNER_PASSWORD) {
+        return Response.json(
+          { error: "Incorrect owner password" },
+          { status: 403 },
+        );
+      }
+    }
+
+    // ⭐ PREVIEW + FULL FILES
+    const previewFile = formData.get("preview") as File | null;
+    const fullFile = formData.get("full") as File | null;
+
+    if (!previewFile || !fullFile) {
       return Response.json(
-        { error: "Upload password is not configured on the server" },
-        { status: 500 },
+        { error: "Both preview and full beat files are required" },
+        { status: 400 },
       );
     }
 
-    if (password !== process.env.OWNER_PASSWORD && password !== "ADMIN_BYPASS") {
-      return Response.json({ error: "Incorrect owner password" }, { status: 403 });
-    }
-
-    const file = formData.get("audio") as File | null;
-    const title = ((formData.get("title") as string) || "Untitled").trim();
-    const price = Number(formData.get("price") || 0);
-
-    if (!file) {
-      return Response.json({ error: "No file uploaded" }, { status: 400 });
-    }
-
-    if (!Number.isFinite(price) || price < 0) {
-      return Response.json({ error: "Invalid price" }, { status: 400 });
-    }
-
-    if (!isAllowedAudioFile(file)) {
+    if (!isAllowedAudioFile(previewFile) || !isAllowedAudioFile(fullFile)) {
       return Response.json(
         { error: "Only MP3 or WAV files are allowed" },
         { status: 400 },
       );
     }
 
-    const fileName = `${Date.now()}-${file.name.replace(/\s/g, "_")}`;
+    const title = ((formData.get("title") as string) || "Untitled").trim();
+    const price = Number(formData.get("price") || 0);
+
+    if (!Number.isFinite(price) || price < 0) {
+      return Response.json({ error: "Invalid price" }, { status: 400 });
+    }
+
     const supabase = getSupabaseAdmin();
 
-    const { error: uploadError } = await supabase.storage
+    // ⭐ Generate unique filenames
+    const previewName = `preview-${Date.now()}-${previewFile.name.replace(/\s/g, "_")}`;
+    const fullName = `full-${Date.now()}-${fullFile.name.replace(/\s/g, "_")}`;
+
+    // ⭐ Upload preview
+    const { error: previewError } = await supabase.storage
       .from("beats")
-      .upload(fileName, file, {
-        contentType: file.type || "audio/mpeg",
+      .upload(previewName, previewFile, {
+        contentType: previewFile.type || "audio/mpeg",
         upsert: false,
       });
 
-    if (uploadError) {
-      return Response.json({ error: uploadError.message }, { status: 500 });
+    if (previewError) {
+      return Response.json({ error: previewError.message }, { status: 500 });
     }
 
-    const { data } = supabase.storage.from("beats").getPublicUrl(fileName);
-    const url = data.publicUrl;
+    // ⭐ Upload full beat
+    const { error: fullError } = await supabase.storage
+      .from("beats")
+      .upload(fullName, fullFile, {
+        contentType: fullFile.type || "audio/mpeg",
+        upsert: false,
+      });
 
+    if (fullError) {
+      return Response.json({ error: fullError.message }, { status: 500 });
+    }
+
+    // ⭐ Get public preview URL
+    const { data: previewData } = supabase.storage
+      .from("beats")
+      .getPublicUrl(previewName);
+
+    const audio_url = previewData.publicUrl;
+
+    // ⭐ Save full beat path (NOT public)
+    const fullAudioPath = fullName;
+
+    // ⭐ Insert into DB
     const { data: beat, error: dbError } = await supabase
       .from("beats")
       .insert({
         title,
         price,
-        url,
+        audio_url,
+        fullAudioPath,
       })
       .select()
       .single();
@@ -87,6 +117,7 @@ export async function POST(req: Request) {
     }
 
     return Response.json({ success: true, beat });
+
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Upload failed on the server";
