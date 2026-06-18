@@ -30,26 +30,34 @@ export async function POST(req: Request) {
       if (!process.env.OWNER_PASSWORD || password !== process.env.OWNER_PASSWORD) {
         return Response.json(
           { error: "Incorrect owner password" },
-          { status: 403 },
+          { status: 403 }
         );
       }
     }
 
-    // ⭐ PREVIEW + FULL FILES
+    // ⭐ FILES (must match your UploadBeatButton names)
     const previewFile = formData.get("preview") as File | null;
     const fullFile = formData.get("full") as File | null;
 
-    if (!previewFile || !fullFile) {
+    // ⭐ FIXED VALIDATION
+    if (!previewFile) {
       return Response.json(
-        { error: "Both preview and full beat files are required" },
-        { status: 400 },
+        { error: "Preview file is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!fullFile) {
+      return Response.json(
+        { error: "Full beat file is required" },
+        { status: 400 }
       );
     }
 
     if (!isAllowedAudioFile(previewFile) || !isAllowedAudioFile(fullFile)) {
       return Response.json(
         { error: "Only MP3 or WAV files are allowed" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -62,7 +70,7 @@ export async function POST(req: Request) {
 
     const supabase = getSupabaseAdmin();
 
-    // ⭐ Generate unique filenames
+    // ⭐ Unique filenames
     const previewName = `preview-${Date.now()}-${previewFile.name.replace(/\s/g, "_")}`;
     const fullName = `full-${Date.now()}-${fullFile.name.replace(/\s/g, "_")}`;
 
@@ -90,14 +98,14 @@ export async function POST(req: Request) {
       return Response.json({ error: fullError.message }, { status: 500 });
     }
 
-    // ⭐ Get public preview URL
+    // ⭐ Public preview URL
     const { data: previewData } = supabase.storage
       .from("beats")
       .getPublicUrl(previewName);
 
     const audio_url = previewData.publicUrl;
 
-    // ⭐ Save full beat path (NOT public)
+    // ⭐ Full beat path (private)
     const fullAudioPath = fullName;
 
     // ⭐ Insert into DB
