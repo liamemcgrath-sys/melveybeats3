@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import BeatCard from "./BeatCard";
 import UploadBeatButton from "./UploadBeatButton";
 import type { DisplayBeat } from "@/lib/beats";
@@ -24,16 +24,8 @@ export default function HomeClient({
   const [adminPassword, setAdminPassword] = useState("");
   const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
-  useEffect(() => {
-    const flag = localStorage.getItem("isAdmin");
-    if (flag === "true") {
-      setIsAdmin(true);
-    }
-  }, []);
-
   const handleAdminLogin = () => {
     if (adminPassword === ADMIN_PASSWORD) {
-      localStorage.setItem("isAdmin", "true");
       setIsAdmin(true);
       setShowAdminLogin(false);
       setAdminPassword("");
@@ -93,12 +85,19 @@ export default function HomeClient({
   return (
     <div className="w-full">
 
+      {/* ADMIN MODE BANNER */}
+      {isAdmin && (
+        <div className="w-full bg-gradient-to-r from-cyan-600 to-green-500 text-white text-center py-2 text-sm font-bold shadow">
+          Admin Mode Active
+        </div>
+      )}
+
       {/* ADMIN LOGIN BUTTON */}
       {!isAdmin && (
         <div className="max-w-6xl mx-auto px-4 mb-6">
           <button
             onClick={() => setShowAdminLogin(true)}
-            className="h-11 rounded-md bg-slate-900 px-5 text-sm font-black text-white hover:bg-slate-800 transition"
+            className="btn-primary"
           >
             Admin Login
           </button>
@@ -107,11 +106,11 @@ export default function HomeClient({
 
       {/* ADMIN LOGIN MODAL */}
       {showAdminLogin && (
-        <section className="border-y border-slate-300 bg-slate-50">
+        <section className="border-y border-cyan-300 bg-cyan-50">
           <div className="mx-auto max-w-6xl px-4 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-bold text-slate-900">Admin Login</p>
-              <p className="text-sm text-slate-600">
+              <p className="text-sm font-bold text-cyan-800">Admin Login</p>
+              <p className="text-sm text-cyan-700">
                 Enter the admin password to unlock upload mode.
               </p>
             </div>
@@ -122,19 +121,16 @@ export default function HomeClient({
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
                 placeholder="Admin password"
-                className="h-11 rounded-md border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none focus:border-cyan-500"
+                className="input"
               />
 
-              <button
-                onClick={handleAdminLogin}
-                className="h-11 rounded-md bg-slate-900 px-5 text-sm font-bold text-white hover:bg-slate-800 transition"
-              >
+              <button onClick={handleAdminLogin} className="btn-primary">
                 Login
               </button>
 
               <button
                 onClick={() => setShowAdminLogin(false)}
-                className="h-11 rounded-md border border-slate-300 bg-white px-5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
+                className="btn-secondary"
               >
                 Cancel
               </button>
@@ -154,11 +150,8 @@ export default function HomeClient({
       {isAdmin && (
         <div className="max-w-6xl mx-auto px-4 mb-6">
           <button
-            onClick={() => {
-              localStorage.removeItem("isAdmin");
-              setIsAdmin(false);
-            }}
-            className="h-11 rounded-md border border-slate-300 bg-white px-5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
+            onClick={() => setIsAdmin(false)}
+            className="btn-secondary"
           >
             Exit Admin
           </button>
@@ -167,16 +160,17 @@ export default function HomeClient({
 
       {/* DELETE MODAL */}
       {pendingRemovalId && (
-        <section className="border-y border-rose-200 bg-rose-50">
+        <section className="border-y border-rose-300 bg-rose-50">
           <div className="max-w-6xl mx-auto px-4 py-4">
             <p className="font-bold text-rose-700">Confirm Delete</p>
+
             {!isAdmin && (
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Owner password"
-                className="mt-2 h-11 rounded-md border border-rose-300 bg-white px-4 text-sm text-slate-900 outline-none focus:border-rose-500"
+                className="input mt-2 border-rose-300 focus:border-rose-500 focus:ring-rose-400"
               />
             )}
 
@@ -190,15 +184,12 @@ export default function HomeClient({
               <button
                 onClick={handleConfirmRemoval}
                 disabled={loading}
-                className="h-11 rounded-md bg-rose-600 px-5 text-sm font-bold text-white hover:bg-rose-700 transition disabled:bg-rose-300"
+                className="btn-danger disabled:opacity-50"
               >
                 {loading ? "Deleting..." : "Delete"}
               </button>
 
-              <button
-                onClick={closeModal}
-                className="h-11 rounded-md border border-slate-300 bg-white px-5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
-              >
+              <button onClick={closeModal} className="btn-secondary">
                 Cancel
               </button>
             </div>
@@ -209,12 +200,12 @@ export default function HomeClient({
       {/* BEAT GRID */}
       <section className="max-w-6xl mx-auto px-4 py-10">
         {beats.length === 0 ? (
-          <div className="grid min-h-72 place-items-center rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center">
+          <div className="grid min-h-72 place-items-center rounded-lg border border-dashed border-cyan-300 bg-white p-8 text-center">
             <div>
-              <h3 className="mt-5 text-xl font-black text-slate-950">
+              <h3 className="mt-5 text-xl font-black text-cyan-800">
                 No beats available yet
               </h3>
-              <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
+              <p className="mt-2 max-w-md text-sm leading-6 text-cyan-700">
                 Upload a beat to get started.
               </p>
             </div>
