@@ -120,9 +120,6 @@ export default function HomeClient({
         {beats.length === 0 ? (
           <div className="grid min-h-72 place-items-center rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center">
             <div>
-              <div className="mx-auto grid h-20 w-20 place-items-center rounded-lg bg-gradient-to-br from-cyan-600 to-green-500 text-3xl font-black text-white">
-                M
-              </div>
               <h3 className="mt-5 text-xl font-black text-slate-950">
                 No beats available yet
               </h3>
