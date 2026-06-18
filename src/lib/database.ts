@@ -6,9 +6,10 @@ export type Database = {
           id: string;
           title: string | null;
           price: number | string | null;
-          url: string | null;
-          audio_url: string | null;
+          url: string | null;          // legacy preview URL
+          audio_url: string | null;    // preview audio URL
           cover_url: string | null;
+          fullAudioPath: string | null; // ⭐ full beat file path
           created_at: string | null;
         };
         Insert: {
@@ -18,6 +19,7 @@ export type Database = {
           url?: string | null;
           audio_url?: string | null;
           cover_url?: string | null;
+          fullAudioPath?: string | null; // ⭐ allow inserting full beat path
           created_at?: string | null;
         };
         Update: {
@@ -26,6 +28,7 @@ export type Database = {
           url?: string | null;
           audio_url?: string | null;
           cover_url?: string | null;
+          fullAudioPath?: string | null; // ⭐ allow updating full beat path
         };
         Relationships: [];
       };
@@ -36,4 +39,3 @@ export type Database = {
     CompositeTypes: Record<string, never>;
   };
 };
-
