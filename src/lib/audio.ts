@@ -1,74 +1,45 @@
+import lamejs from "lamejs";
+
+// Generate a small MP3 preview (30 seconds, ~200–500 KB)
 export async function generatePreview(file: File): Promise<File> {
   const arrayBuffer = await file.arrayBuffer();
   const audioCtx = new AudioContext();
   const decoded = await audioCtx.decodeAudioData(arrayBuffer);
 
-  const duration = Math.min(decoded.duration, 30);
   const sampleRate = decoded.sampleRate;
+  const channels = decoded.numberOfChannels;
 
-  const previewBuffer = audioCtx.createBuffer(
-    decoded.numberOfChannels,
-    duration * sampleRate,
-    sampleRate
-  );
+  // Limit preview to 30 seconds
+  const previewSamples = Math.min(decoded.length, sampleRate * 30);
 
-  for (let ch = 0; ch < decoded.numberOfChannels; ch++) {
-    previewBuffer.getChannelData(ch).set(
-      decoded.getChannelData(ch).slice(0, duration * sampleRate)
-    );
+  // Extract first 30 seconds from each channel
+  const channelData: Float32Array[] = [];
+  for (let ch = 0; ch < channels; ch++) {
+    channelData.push(decoded.getChannelData(ch).slice(0, previewSamples));
   }
 
-  const wavBlob = encodeWav(previewBuffer);
-  return new File([wavBlob], "preview.wav", { type: "audio/wav" });
-}
+  // Convert Float32 → Int16
+  const samples = new Int16Array(previewSamples * channels);
+  let idx = 0;
 
-function encodeWav(buffer: AudioBuffer): Blob {
-  const numChannels = buffer.numberOfChannels;
-  const sampleRate = buffer.sampleRate;
-  const samples = buffer.length;
-
-  const bytesPerSample = 2;
-  const blockAlign = numChannels * bytesPerSample;
-  const byteRate = sampleRate * blockAlign;
-
-  const dataSize = samples * blockAlign;
-  const bufferSize = 44 + dataSize;
-
-  const arrayBuffer = new ArrayBuffer(bufferSize);
-  const view = new DataView(arrayBuffer);
-
-  let offset = 0;
-
-  function writeString(str: string) {
-    for (let i = 0; i < str.length; i++) {
-      view.setUint8(offset++, str.charCodeAt(i));
+  for (let i = 0; i < previewSamples; i++) {
+    for (let ch = 0; ch < channels; ch++) {
+      const s = Math.max(-1, Math.min(1, channelData[ch][i]));
+      samples[idx++] = s * 32767;
     }
   }
 
-  writeString("RIFF");
-  view.setUint32(offset, 36 + dataSize, true); offset += 4;
-  writeString("WAVE");
+  // Encode MP3 (96 kbps)
+  const mp3Encoder = new lamejs.Mp3Encoder(channels, sampleRate, 96);
+  const mp3Chunks: Uint8Array[] = [];
 
-  writeString("fmt ");
-  view.setUint32(offset, 16, true); offset += 4;
-  view.setUint16(offset, 1, true); offset += 2;
-  view.setUint16(offset, numChannels, true); offset += 2;
-  view.setUint32(offset, sampleRate, true); offset += 4;
-  view.setUint32(offset, byteRate, true); offset += 4;
-  view.setUint16(offset, blockAlign, true); offset += 2;
-  view.setUint16(offset, 16, true); offset += 2;
+  const chunk = mp3Encoder.encodeBuffer(samples);
+  if (chunk.length > 0) mp3Chunks.push(chunk);
 
-  writeString("data");
-  view.setUint32(offset, dataSize, true); offset += 4;
+  const end = mp3Encoder.flush();
+  if (end.length > 0) mp3Chunks.push(end);
 
-  for (let i = 0; i < samples; i++) {
-    for (let ch = 0; ch < numChannels; ch++) {
-      const sample = buffer.getChannelData(ch)[i];
-      const clamped = Math.max(-1, Math.min(1, sample));
-      view.setInt16(offset, clamped * 0x7fff, true);
-      offset += 2;
-    }
-  }
+  const mp3Blob = new Blob(mp3Chunks, { type: "audio/mpeg" });
 
-  return new Blob([arrayBuffer], { type: "audio/wav" });
+  return new File([mp3Blob], "preview.mp3", { type: "audio/mpeg" });
 }
