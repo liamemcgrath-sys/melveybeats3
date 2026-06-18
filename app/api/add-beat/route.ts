@@ -1,10 +1,11 @@
 export const runtime = "nodejs";
 export const preferredRegion = "iad1";
 export const dynamic = "force-dynamic";
+export const maxBodySize = "200mb";
+
 
 // Allow large uploads + long processing time
 export const maxDuration = 300;
-export const maxBodySize = "200mb";
 
 import { getSupabaseAdmin } from "@/lib/supabaseServer";
 
