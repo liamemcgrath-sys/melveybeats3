@@ -74,7 +74,7 @@ export default function BeatCard({
   };
 
   return (
-    <article className="card overflow-hidden group transition">
+    <article className="card group overflow-hidden transition">
       {/* Cover Art */}
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
         {beat.coverUrl && (
@@ -102,14 +102,13 @@ export default function BeatCard({
           </p>
         </div>
 
-        {/* Custom Audio Preview */}
+        {/* Audio Preview */}
         {beat.audioUrl ? (
           <div className="mt-4">
             <p className="mb-2 text-xs font-semibold text-cyan-700">
               Preview • 30 seconds
             </p>
 
-            {/* Progress Bar */}
             <div className="relative w-full rounded-md bg-cyan-100 h-3 overflow-hidden">
               <div
                 ref={progressRef}
@@ -118,7 +117,6 @@ export default function BeatCard({
               />
             </div>
 
-            {/* Hidden Audio Element */}
             <audio
               ref={audioRef}
               className="hidden"
@@ -127,7 +125,6 @@ export default function BeatCard({
               <source src={beat.audioUrl} type="audio/mpeg" />
             </audio>
 
-            {/* Play Button */}
             <button
               onClick={togglePlay}
               className="btn-secondary mt-3 w-full text-cyan-700 border-cyan-300"
@@ -151,7 +148,6 @@ export default function BeatCard({
             {loading ? "Opening checkout..." : "Buy Beat"}
           </button>
 
-          {/* ADMIN-ONLY DELETE BUTTON */}
           {isAdmin && onRemove && (
             <button onClick={onRemove} className="btn-danger">
               Delete
@@ -159,7 +155,6 @@ export default function BeatCard({
           )}
         </div>
 
-        {/* Error */}
         {error && (
           <p className="mt-3 text-sm font-semibold text-rose-600">{error}</p>
         )}
