@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BeatCard from "./BeatCard";
 import UploadBeatButton from "./UploadBeatButton";
 import type { DisplayBeat } from "@/lib/beats";
@@ -15,6 +15,16 @@ export default function HomeClient({
   const [pendingRemovalId, setPendingRemovalId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // NEW: Admin flag
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const flag = localStorage.getItem("isAdmin");
+    if (flag === "true") {
+      setIsAdmin(true);
+    }
+  }, []);
 
   const handleRemove = (id: string) => {
     setPendingRemovalId(id);
@@ -64,9 +74,11 @@ export default function HomeClient({
   return (
     <div className="w-full">
       {/* ADMIN UPLOAD BUTTON */}
-      <div className="max-w-6xl mx-auto px-4 mb-10">
-        <UploadBeatButton />
-      </div>
+      {isAdmin && (
+        <div className="max-w-6xl mx-auto px-4 mb-10">
+          <UploadBeatButton />
+        </div>
+      )}
 
       {/* DELETE MODAL */}
       {pendingRemovalId && (
@@ -144,4 +156,3 @@ export default function HomeClient({
     </div>
   );
 }
-
