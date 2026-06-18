@@ -25,7 +25,7 @@ export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
       formData.append("audio", file);
       formData.append("title", file.name);
       formData.append("price", price);
-      formData.append("password", password);
+      formData.append("password", isAdmin ? "ADMIN_BYPASS" : password);
 
       const res = await fetch("/api/add-beat", {
         method: "POST",
@@ -48,24 +48,26 @@ export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
   };
 
   return (
-    <div className="w-full rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-lg font-black text-slate-900">Upload Beat</h3>
+    <div className="card w-full p-5">
+      <h3 className="text-lg font-black text-cyan-800">Upload Beat</h3>
 
       <div className="mt-4 grid gap-4">
-        {/* PASSWORD */}
-        <label className="grid gap-1 text-sm font-semibold text-slate-700">
-          Owner Password
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Enter password"
-            className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-cyan-500"
-          />
-        </label>
+        {/* PASSWORD (hidden for admin) */}
+        {!isAdmin && (
+          <label className="grid gap-1 text-sm font-semibold text-cyan-700">
+            Owner Password
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Enter password"
+              className="input"
+            />
+          </label>
+        )}
 
         {/* PRICE */}
-        <label className="grid gap-1 text-sm font-semibold text-slate-700">
+        <label className="grid gap-1 text-sm font-semibold text-cyan-700">
           Price (USD)
           <input
             type="number"
@@ -74,7 +76,7 @@ export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
             value={price}
             onChange={(event) => setPrice(event.target.value)}
             placeholder="0.00"
-            className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-green-500"
+            className="input"
           />
         </label>
       </div>
@@ -82,8 +84,8 @@ export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
       {/* BUTTON */}
       <button
         onClick={openPicker}
-        disabled={loading || !password}
-        className="mt-5 h-12 w-full rounded-md bg-slate-900 text-white text-sm font-black transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+        disabled={loading || (!isAdmin && !password)}
+        className="btn-primary mt-5 w-full disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? "Uploading..." : "Choose Beat File"}
       </button>
