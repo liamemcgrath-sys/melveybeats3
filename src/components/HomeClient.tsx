@@ -11,13 +11,18 @@ export default function HomeClient({
   initialBeats: DisplayBeat[];
 }) {
   const [beats, setBeats] = useState(initialBeats);
+
+  // DELETE MODAL STATE
   const [password, setPassword] = useState("");
   const [pendingRemovalId, setPendingRemovalId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // NEW: Admin flag
+  // ADMIN LOGIN STATE
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
+  const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
   useEffect(() => {
     const flag = localStorage.getItem("isAdmin");
@@ -25,6 +30,17 @@ export default function HomeClient({
       setIsAdmin(true);
     }
   }, []);
+
+  const handleAdminLogin = () => {
+    if (adminPassword === ADMIN_PASSWORD) {
+      localStorage.setItem("isAdmin", "true");
+      setIsAdmin(true);
+      setShowAdminLogin(false);
+      setAdminPassword("");
+    } else {
+      alert("Incorrect admin password");
+    }
+  };
 
   const handleRemove = (id: string) => {
     setPendingRemovalId(id);
@@ -73,6 +89,56 @@ export default function HomeClient({
 
   return (
     <div className="w-full">
+      {/* ADMIN LOGIN BUTTON (if not admin) */}
+      {!isAdmin && (
+        <div className="max-w-6xl mx-auto px-4 mb-6">
+          <button
+            onClick={() => setShowAdminLogin(true)}
+            className="h-11 rounded-md bg-slate-900 px-5 text-sm font-black text-white hover:bg-slate-800 transition"
+          >
+            Admin Login
+          </button>
+        </div>
+      )}
+
+      {/* ADMIN LOGIN MODAL */}
+      {showAdminLogin && (
+        <section className="border-y border-slate-300 bg-slate-50">
+          <div className="mx-auto max-w-6xl px-4 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-bold text-slate-900">Admin Login</p>
+              <p className="text-sm text-slate-600">
+                Enter the admin password to unlock upload mode.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <input
+                type="password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                placeholder="Admin password"
+                className="h-11 rounded-md border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none focus:border-cyan-500"
+              />
+
+              <button
+                onClick={handleAdminLogin}
+                className="h-11 rounded-md bg-slate-900 px-5 text-sm font-bold text-white hover:bg-slate-800 transition"
+              >
+                Login
+              </button>
+
+              <button
+                onClick={() => setShowAdminLogin(false)}
+                className="h-11 rounded-md border border-slate-300 bg-white px-5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ADMIN UPLOAD BUTTON */}
       {isAdmin && (
         <div className="max-w-6xl mx-auto px-4 mb-10">
