@@ -83,7 +83,7 @@ export default function HomeClient({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full relative z-10">
 
       {/* ADMIN MODE BANNER */}
       {isAdmin && (
@@ -227,3 +227,4 @@ export default function HomeClient({
     </div>
   );
 }
+
