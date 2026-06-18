@@ -1,7 +1,12 @@
+export const runtime = "nodejs";
+
+export const maxDuration = 300; // allow long uploads
+export const dynamic = "force-dynamic";
+
 export const config = {
   api: {
     bodyParser: false,
-    sizeLimit: "100mb",
+    sizeLimit: "200mb",
   },
 };
 
