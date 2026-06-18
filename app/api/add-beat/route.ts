@@ -12,7 +12,6 @@ export const config = {
 
 import { getSupabaseAdmin } from "@/lib/supabaseServer";
 
-export const runtime = "nodejs";
 
 const allowedMimeTypes = new Set([
   "audio/mpeg",
