@@ -15,10 +15,12 @@ export default function BeatCard({
   beat,
   index = 0,
   onRemove,
+  isAdmin, // NEW
 }: {
   beat: DisplayBeat;
   index?: number;
   onRemove?: () => void;
+  isAdmin?: boolean; // NEW
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -156,7 +158,8 @@ export default function BeatCard({
             {loading ? "Opening checkout..." : "Buy Beat"}
           </button>
 
-          {onRemove && (
+          {/* ADMIN-ONLY DELETE BUTTON */}
+          {isAdmin && onRemove && (
             <button
               onClick={onRemove}
               className="h-11 rounded-md border border-rose-200 bg-rose-50 px-4 text-sm font-black text-rose-700 transition hover:bg-rose-100"
