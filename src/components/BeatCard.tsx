@@ -4,23 +4,16 @@ import Image from "next/image";
 import { useState, useRef } from "react";
 import type { DisplayBeat } from "@/lib/beats";
 
-const artStyles = [
-  "from-slate-950 via-cyan-800 to-teal-400",
-  "from-slate-950 via-indigo-800 to-fuchsia-500",
-  "from-slate-950 via-emerald-800 to-lime-400",
-  "from-slate-950 via-rose-800 to-orange-400",
-];
-
 export default function BeatCard({
   beat,
   index = 0,
   onRemove,
-  isAdmin, // NEW
+  isAdmin,
 }: {
   beat: DisplayBeat;
   index?: number;
   onRemove?: () => void;
-  isAdmin?: boolean; // NEW
+  isAdmin?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -81,7 +74,7 @@ export default function BeatCard({
   };
 
   return (
-    <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg">
+    <article className="card overflow-hidden group transition">
       {/* Cover Art */}
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
         {beat.coverUrl && (
@@ -100,11 +93,11 @@ export default function BeatCard({
       <div className="p-5">
         {/* Title + Price */}
         <div className="flex items-start justify-between gap-4">
-          <h3 className="truncate text-lg font-black text-slate-950">
+          <h3 className="truncate text-lg font-black text-cyan-800">
             {beat.title}
           </h3>
 
-          <p className="shrink-0 rounded-md bg-slate-950 px-3 py-1.5 text-sm font-black text-white">
+          <p className="shrink-0 rounded-md bg-gradient-to-br from-cyan-600 to-green-500 px-3 py-1.5 text-sm font-black text-white shadow-sm">
             ${beat.price.toFixed(2)}
           </p>
         </div>
@@ -112,15 +105,15 @@ export default function BeatCard({
         {/* Custom Audio Preview */}
         {beat.audioUrl ? (
           <div className="mt-4">
-            <p className="mb-2 text-xs font-semibold text-slate-500">
+            <p className="mb-2 text-xs font-semibold text-cyan-700">
               Preview • 30 seconds
             </p>
 
             {/* Progress Bar */}
-            <div className="relative w-full rounded-md bg-slate-200 h-3 overflow-hidden">
+            <div className="relative w-full rounded-md bg-cyan-100 h-3 overflow-hidden">
               <div
                 ref={progressRef}
-                className="h-full bg-slate-900 transition-all duration-100"
+                className="h-full bg-cyan-600 transition-all duration-100"
                 style={{ width: "0%" }}
               />
             </div>
@@ -137,7 +130,7 @@ export default function BeatCard({
             {/* Play Button */}
             <button
               onClick={togglePlay}
-              className="mt-3 w-full h-10 rounded-md bg-slate-900 text-white text-sm font-black hover:bg-slate-800 transition"
+              className="btn-secondary mt-3 w-full text-cyan-700 border-cyan-300"
             >
               {isPlaying ? "Pause Preview" : "Play Preview"}
             </button>
@@ -153,17 +146,14 @@ export default function BeatCard({
           <button
             onClick={buyBeat}
             disabled={loading || !beat.audioUrl}
-            className="h-11 rounded-md bg-slate-900 px-4 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+            className="btn-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Opening checkout..." : "Buy Beat"}
           </button>
 
           {/* ADMIN-ONLY DELETE BUTTON */}
           {isAdmin && onRemove && (
-            <button
-              onClick={onRemove}
-              className="h-11 rounded-md border border-rose-200 bg-rose-50 px-4 text-sm font-black text-rose-700 transition hover:bg-rose-100"
-            >
+            <button onClick={onRemove} className="btn-danger">
               Delete
             </button>
           )}
