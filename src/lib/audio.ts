@@ -18,66 +18,64 @@ export async function generatePreview(file: File): Promise<File> {
     );
   }
 
-  const wavBlob = await bufferToWav(previewBuffer);
+  const wavBlob = encodeWav(previewBuffer);
   return new File([wavBlob], "preview.wav", { type: "audio/wav" });
 }
 
-function bufferToWav(buffer: AudioBuffer): Promise<Blob> {
-  return new Promise((resolve) => {
-    const worker = new Worker(
-      URL.createObjectURL(
-        new Blob(
-          [
-            `
-            self.onmessage = function(e) {
-              const { buffer } = e.data;
-              const numChannels = buffer.numberOfChannels;
-              const sampleRate = buffer.sampleRate;
-              const length = buffer.length;
+/**
+ * Clean, stable WAV encoder — no worker needed
+ */
+function encodeWav(buffer: AudioBuffer): Blob {
+  const numChannels = buffer.numberOfChannels;
+  const sampleRate = buffer.sampleRate;
+  const samples = buffer.length;
 
-              const wavBuffer = new ArrayBuffer(44 + length * numChannels * 2);
-              const view = new DataView(wavBuffer);
+  const bytesPerSample = 2;
+  const blockAlign = numChannels * bytesPerSample;
+  const byteRate = sampleRate * blockAlign;
 
-              function writeString(view, offset, string) {
-                for (let i = 0; i < string.length; i++) {
-                  view.setUint8(offset + i, string.charCodeAt(i));
-                }
-              }
+  const dataSize = samples * blockAlign;
+  const bufferSize = 44 + dataSize;
 
-              writeString(view, 0, "RIFF");
-              view.setUint32(4, 36 + length * numChannels * 2, true);
-              writeString(view, 8, "WAVE");
-              writeString(view, 12, "fmt ");
-              view.setUint32(16, 16, true);
-              view.setUint16(20, 1, true);
-              view.setUint16(22, numChannels, true);
-              view.setUint32(24, sampleRate, true);
-              view.setUint32(28, sampleRate * numChannels * 2, true);
-              view.setUint16(32, numChannels * 2, true);
-              view.setUint16(34, 16, true);
-              writeString(view, 36, "data");
-              view.setUint32(40, length * numChannels * 2, true);
+  const arrayBuffer = new ArrayBuffer(bufferSize);
+  const view = new DataView(arrayBuffer);
 
-              let offset = 44;
-              for (let ch = 0; ch < numChannels; ch++) {
-                const channelData = buffer.getChannelData(ch);
-                for (let i = 0; i < channelData.length; i++) {
-                  const sample = Math.max(-1, Math.min(1, channelData[i]));
-                  view.setInt16(offset, sample * 0x7fff, true);
-                  offset += 2;
-                }
-              }
+  let offset = 0;
 
-              self.postMessage(new Blob([view]), []);
-            };
-          `,
-          ],
-          { type: "application/javascript" }
-        )
-      )
-    );
+  function writeString(str: string) {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset++, str.charCodeAt(i));
+    }
+  }
 
-    worker.onmessage = (e) => resolve(e.data);
-    worker.postMessage({ buffer });
-  });
+  // RIFF header
+  writeString("RIFF");
+  view.setUint32(offset, 36 + dataSize, true); offset += 4;
+  writeString("WAVE");
+
+  // fmt chunk
+  writeString("fmt ");
+  view.setUint32(offset, 16, true); offset += 4; // chunk size
+  view.setUint16(offset, 1, true); offset += 2; // PCM
+  view.setUint16(offset, numChannels, true); offset += 2;
+  view.setUint32(offset, sampleRate, true); offset += 4;
+  view.setUint32(offset, byteRate, true); offset += 4;
+  view.setUint16(offset, blockAlign, true); offset += 2;
+  view.setUint16(offset, 16, true); offset += 2; // bits per sample
+
+  // data chunk
+  writeString("data");
+  view.setUint32(offset, dataSize, true); offset += 4;
+
+  // Write PCM samples
+  for (let i = 0; i < samples; i++) {
+    for (let ch = 0; ch < numChannels; ch++) {
+      const sample = buffer.getChannelData(ch)[i];
+      const clamped = Math.max(-1, Math.min(1, sample));
+      view.setInt16(offset, clamped * 0x7fff, true);
+      offset += 2;
+    }
+  }
+
+  return new Blob([arrayBuffer], { type: "audio/wav" });
 }
