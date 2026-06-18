@@ -7,6 +7,7 @@ async function removeBeat(req: Request) {
     const password = body?.password;
 
     // Allow admin bypass
+// Allow admin bypass
 if (password !== "ADMIN_BYPASS") {
   if (!process.env.OWNER_PASSWORD || password !== process.env.OWNER_PASSWORD) {
     return Response.json(
@@ -14,6 +15,8 @@ if (password !== "ADMIN_BYPASS") {
       { status: 403 },
     );
   }
+
+
 
 
     if (!id || typeof id !== "string") {
