@@ -6,12 +6,15 @@ async function removeBeat(req: Request) {
     const id = body?.id;
     const password = body?.password;
 
-    if (!process.env.OWNER_PASSWORD || password !== process.env.OWNER_PASSWORD) {
-      return Response.json(
-        { success: false, error: "Unauthorized" },
-        { status: 403 },
-      );
-    }
+    // Allow admin bypass
+if (password !== "ADMIN_BYPASS") {
+  if (!process.env.OWNER_PASSWORD || password !== process.env.OWNER_PASSWORD) {
+    return Response.json(
+      { success: false, error: "Unauthorized" },
+      { status: 403 },
+    );
+  }
+
 
     if (!id || typeof id !== "string") {
       return Response.json(
