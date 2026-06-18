@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { generatePreview } from "@/client/audio";
+import { generatePreview } from "@/client/generatePreview";
 
 export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
   const fileRef = useRef<HTMLInputElement>(null);
