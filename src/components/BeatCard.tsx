@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { DisplayBeat } from "@/lib/beats";
 
 const artStyles = [
@@ -22,6 +22,10 @@ export default function BeatCard({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
 
   const buyBeat = async () => {
     setLoading(true);
@@ -45,24 +49,38 @@ export default function BeatCard({
     }
   };
 
-  const handleTimeUpdate = (e: React.SyntheticEvent<HTMLAudioElement>) => {
-    const audio = e.currentTarget;
-    if (audio.currentTime > 30) {
-      audio.currentTime = 0;
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.paused) {
+      audio.play();
+      setIsPlaying(true);
+    } else {
       audio.pause();
+      setIsPlaying(false);
     }
   };
 
-  const handleSeeking = (e: React.SyntheticEvent<HTMLAudioElement>) => {
-    const audio = e.currentTarget;
-    if (audio.currentTime > 30) {
-      audio.currentTime = 0;
+  const handleTimeUpdate = () => {
+    const audio = audioRef.current;
+    const progress = progressRef.current;
+    if (!audio || !progress) return;
+
+    const percent = (audio.currentTime / 30) * 100;
+    progress.style.width = `${Math.min(percent, 100)}%`;
+
+    if (audio.currentTime >= 30) {
       audio.pause();
+      audio.currentTime = 0;
+      progress.style.width = "0%";
+      setIsPlaying(false);
     }
   };
 
   return (
     <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg">
+      {/* Cover Art */}
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
         {beat.coverUrl && (
           <Image
@@ -76,7 +94,9 @@ export default function BeatCard({
         )}
       </div>
 
+      {/* Content */}
       <div className="p-5">
+        {/* Title + Price */}
         <div className="flex items-start justify-between gap-4">
           <h3 className="truncate text-lg font-black text-slate-950">
             {beat.title}
@@ -87,20 +107,38 @@ export default function BeatCard({
           </p>
         </div>
 
+        {/* Custom Audio Preview */}
         {beat.audioUrl ? (
           <div className="mt-4">
-            <p className="mb-1 text-xs font-semibold text-slate-500">
-              Preview (30 seconds)
+            <p className="mb-2 text-xs font-semibold text-slate-500">
+              Preview • 30 seconds
             </p>
 
+            {/* Progress Bar */}
+            <div className="relative w-full rounded-md bg-slate-200 h-3 overflow-hidden">
+              <div
+                ref={progressRef}
+                className="h-full bg-slate-900 transition-all duration-100"
+                style={{ width: "0%" }}
+              />
+            </div>
+
+            {/* Hidden Audio Element */}
             <audio
-              controls
-              className="w-full"
+              ref={audioRef}
+              className="hidden"
               onTimeUpdate={handleTimeUpdate}
-              onSeeking={handleSeeking}
             >
               <source src={beat.audioUrl} type="audio/mpeg" />
             </audio>
+
+            {/* Play Button */}
+            <button
+              onClick={togglePlay}
+              className="mt-3 w-full h-10 rounded-md bg-slate-900 text-white text-sm font-black hover:bg-slate-800 transition"
+            >
+              {isPlaying ? "Pause Preview" : "Play Preview"}
+            </button>
           </div>
         ) : (
           <p className="mt-4 rounded-md bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800">
@@ -108,6 +146,7 @@ export default function BeatCard({
           </p>
         )}
 
+        {/* Buttons */}
         <div className="mt-5 grid gap-2 sm:grid-cols-[1fr_auto]">
           <button
             onClick={buyBeat}
@@ -127,6 +166,7 @@ export default function BeatCard({
           )}
         </div>
 
+        {/* Error */}
         {error && (
           <p className="mt-3 text-sm font-semibold text-rose-600">{error}</p>
         )}
