@@ -9,9 +9,7 @@ export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
   const [price, setPrice] = useState("0");
   const [error, setError] = useState("");
 
-  const openPicker = () => {
-    fileRef.current?.click();
-  };
+  const openPicker = () => fileRef.current?.click();
 
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -33,10 +31,7 @@ export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
       });
 
       const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        throw new Error(data?.error || "Upload failed");
-      }
+      if (!res.ok) throw new Error(data?.error || "Upload failed");
 
       window.location.reload();
     } catch (err) {
@@ -52,21 +47,18 @@ export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
       <h3 className="text-lg font-black text-cyan-800">Upload Beat</h3>
 
       <div className="mt-4 grid gap-4">
-        {/* PASSWORD (hidden for admin) */}
         {!isAdmin && (
           <label className="grid gap-1 text-sm font-semibold text-cyan-700">
             Owner Password
             <input
               type="password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Enter password"
+              onChange={(e) => setPassword(e.target.value)}
               className="input"
             />
           </label>
         )}
 
-        {/* PRICE */}
         <label className="grid gap-1 text-sm font-semibold text-cyan-700">
           Price (USD)
           <input
@@ -74,14 +66,12 @@ export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
             min="0"
             step="0.01"
             value={price}
-            onChange={(event) => setPrice(event.target.value)}
-            placeholder="0.00"
+            onChange={(e) => setPrice(e.target.value)}
             className="input"
           />
         </label>
       </div>
 
-      {/* BUTTON */}
       <button
         onClick={openPicker}
         disabled={loading || (!isAdmin && !password)}
@@ -90,7 +80,6 @@ export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
         {loading ? "Uploading..." : "Choose Beat File"}
       </button>
 
-      {/* HIDDEN FILE INPUT */}
       <input
         ref={fileRef}
         type="file"
@@ -99,7 +88,6 @@ export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
         onChange={upload}
       />
 
-      {/* ERROR */}
       {error && (
         <p className="mt-3 rounded-md bg-rose-100 px-3 py-2 text-sm font-semibold text-rose-700">
           {error}
