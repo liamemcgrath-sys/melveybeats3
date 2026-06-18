@@ -9,16 +9,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        style={{
-          margin: 0,
-          minHeight: "100vh",
-          fontFamily: "Arial, sans-serif",
-          background:
-            "linear-gradient(135deg, #eef7ff 0%, #dbeafe 35%, #93c5fd 100%)",
-          color: "#0f172a",
-        }}
-      >
+      <body className="min-h-screen bg-gradient-to-br from-[#eef7ff] via-[#dbeafe] to-[#93c5fd] text-slate-900">
         {children}
 
         <footer className="mt-20 border-t border-slate-200 py-10 text-center text-sm text-slate-500">
