@@ -47,19 +47,21 @@ export default function BeatCard({
   };
 
   return (
-    <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg">
-      {/* Cover Art */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
-        {beat.coverUrl ? (
-          <Image
-            src={beat.coverUrl}
-            alt={beat.title}
-            fill
-            unoptimized
-            sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
-            className="object-cover transition duration-300 group-hover:scale-105"
-          />
-        ) : null}
+  <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg">
+    {/* Cover Art */}
+    <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
+      {beat.coverUrl ? (
+        <Image
+          src={beat.coverUrl}
+          alt={beat.title}
+          fill
+          unoptimized
+          sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+          className="object-cover transition duration-300 group-hover:scale-105"
+        />
+      ) : null}
+    </div>
+
 
       {/* Content */}
       <div className="p-5">
