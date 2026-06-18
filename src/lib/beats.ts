@@ -1,3 +1,4 @@
+import type { DisplayBeat } from "@/types";
 export type Beat = {
   id: string;
   title: string | null;
@@ -8,14 +9,6 @@ export type Beat = {
   fullAudioPath?: string | null; // full beat file path
 };
 
-export type DisplayBeat = {
-  id: string;
-  title: string;
-  price: number;
-  audioUrl: string;        // preview
-  coverUrl?: string;
-  fullAudioPath: string;   // full beat file path
-};
 
 export function toDisplayBeat(beat: Beat): DisplayBeat {
   const price = Number(beat.price ?? 0);
