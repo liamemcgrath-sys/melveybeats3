@@ -24,14 +24,19 @@ export default async function SuccessPage({
           Your beat purchase is ready to enjoy. A confirmation has been prepared
           for your order.
         </p>
-        {sessionId ? (
-          <p className="mt-4 rounded-full bg-slate-50 px-4 py-2 text-sm text-slate-600">
-            Stripe session: {sessionId}
-          </p>
-        ) : null}
+
+        {sessionId && (
+          <a
+            href={`/api/download-beat?session_id=${sessionId}`}
+            className="mt-6 inline-flex items-center justify-center rounded-full bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
+          >
+            Download Full Beat
+          </a>
+        )}
+
         <Link
           href="/"
-          className="mt-6 inline-flex items-center justify-center rounded-full bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700"
+          className="mt-4 inline-flex items-center justify-center rounded-full bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700"
         >
           Back to beats
         </Link>
@@ -39,4 +44,3 @@ export default async function SuccessPage({
     </main>
   );
 }
-
