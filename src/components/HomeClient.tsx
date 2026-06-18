@@ -3,7 +3,7 @@
 import { useState } from "react";
 import BeatCard from "./BeatCard";
 import UploadBeatButton from "./UploadBeatButton";
-import type { DisplayBeat } from "@/lib/beats";
+import type { DisplayBeat } from "@/types";
 
 export default function HomeClient({
   initialBeats,
