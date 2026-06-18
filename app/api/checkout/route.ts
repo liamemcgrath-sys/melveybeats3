@@ -80,6 +80,7 @@ export async function POST(req: Request) {
     );
   }
 
+  // ⭐ IMPORTANT: include fullAudioPath for secure download
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
@@ -100,6 +101,7 @@ export async function POST(req: Request) {
     metadata: {
       beatId: beat.id,
       beatTitle: beat.title,
+      fullAudioPath: beat.fullAudioPath, // ⭐ REQUIRED FOR BEATSTARS-STYLE DELIVERY
     },
   });
 
