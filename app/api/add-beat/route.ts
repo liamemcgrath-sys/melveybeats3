@@ -1,18 +1,12 @@
 export const runtime = "nodejs";
 export const preferredRegion = "iad1";
 export const dynamic = "force-dynamic";
-export const maxDuration = 300; // allow long uploads
 
-
-export const config = {
-  api: {
-    bodyParser: false,
-    sizeLimit: "200mb",
-  },
-};
+// Allow large uploads + long processing time
+export const maxDuration = 300;
+export const maxBodySize = "200mb";
 
 import { getSupabaseAdmin } from "@/lib/supabaseServer";
-
 
 const allowedMimeTypes = new Set([
   "audio/mpeg",
@@ -35,6 +29,7 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
 
+    // Password check
     const password = formData.get("password") as string | null;
 
     if (password !== "ADMIN_BYPASS") {
@@ -43,7 +38,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // ⭐ Expect TWO files now
+    // Expect two files
     const full = formData.get("full") as File | null;
     const preview = formData.get("preview") as File | null;
 
@@ -60,11 +55,11 @@ export async function POST(req: Request) {
 
     const supabase = getSupabaseAdmin();
 
-    // ⭐ Filenames
+    // Filenames
     const fullName = `full-${Date.now()}-${full.name.replace(/\s/g, "_")}`;
     const previewName = `preview-${Date.now()}-${preview.name.replace(/\s/g, "_")}`;
 
-    // ⭐ Upload full beat
+    // Upload full beat
     const { error: fullError } = await supabase.storage
       .from("beats")
       .upload(fullName, full);
@@ -73,7 +68,7 @@ export async function POST(req: Request) {
       return Response.json({ error: fullError.message }, { status: 500 });
     }
 
-    // ⭐ Upload preview (already generated client-side)
+    // Upload preview
     const { error: previewError } = await supabase.storage
       .from("beats")
       .upload(previewName, preview);
@@ -82,14 +77,14 @@ export async function POST(req: Request) {
       return Response.json({ error: previewError.message }, { status: 500 });
     }
 
-    // ⭐ Public preview URL
+    // Public preview URL
     const { data: previewData } = supabase.storage
       .from("beats")
       .getPublicUrl(previewName);
 
     const audio_url = previewData.publicUrl;
 
-    // ⭐ Insert into DB
+    // Insert DB row
     const { data: beat, error: dbError } = await supabase
       .from("beats")
       .insert({
