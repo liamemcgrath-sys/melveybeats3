@@ -1,4 +1,5 @@
-import lamejs from "lamejs";
+"use client";
+const lamejs = require("lamejs");
 
 // Generate a small MP3 preview (30 seconds, ~200–500 KB)
 export async function generatePreview(file: File): Promise<File> {
