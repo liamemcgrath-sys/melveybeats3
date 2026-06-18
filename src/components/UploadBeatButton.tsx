@@ -83,7 +83,7 @@ export default function UploadBeatButton() {
       <button
         onClick={openPicker}
         disabled={loading || !password}
-        className="mt-5 h-12 w-full rounded-md bg-gradient-to-r from-cyan-600 to-green-500 text-sm font-black text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-slate-300"
+        className="mt-5 h-12 w-full rounded-md bg-slate-900 text-white text-sm font-black transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
       >
         {loading ? "Uploading..." : "Choose Beat File"}
       </button>
@@ -93,7 +93,7 @@ export default function UploadBeatButton() {
         ref={fileRef}
         type="file"
         accept=".mp3,.wav,audio/mpeg,audio/mp3,audio/wav,audio/x-wav"
-        style={{ display: "none" }}
+        className="hidden"
         onChange={upload}
       />
 
