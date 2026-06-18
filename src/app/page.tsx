@@ -9,7 +9,7 @@ export default async function Home() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // If env vars are missing, render empty UI gracefully
+  // Graceful fallback if env vars are missing
   if (!supabaseUrl || !supabaseAnonKey) {
     return (
       <main className="max-w-6xl mx-auto px-4 py-16">
@@ -28,7 +28,9 @@ export default async function Home() {
   if (error) {
     return (
       <main className="max-w-6xl mx-auto px-4 py-16">
-        <h1 className="text-4xl font-black text-slate-900">Melvey Beats</h1>
+        <h1 className="text-4xl font-black text-blue-600 text-center">
+          Melvey Beats
+        </h1>
         <p className="mt-4 text-red-600 font-semibold">
           Error loading beats: {error.message}
         </p>
@@ -39,15 +41,14 @@ export default async function Home() {
   const displayBeats = (beats ?? []).map(toDisplayBeat);
 
   return (
-  <main className="max-w-6xl mx-auto px-4 py-16">
-    <section className="text-center mb-16">
-      <h1 className="text-5xl font-black tracking-tight text-slate-950">
-        Melvey Beats
-      </h1>
-    </section>
+    <main className="max-w-6xl mx-auto px-4 py-16">
+      <section className="text-center mb-16">
+        <h1 className="text-5xl font-black tracking-tight text-blue-600 text-center">
+          Melvey Beats
+        </h1>
+      </section>
 
-    <HomeClient initialBeats={displayBeats} />
-  </main>
-);
+      <HomeClient initialBeats={displayBeats} />
+    </main>
+  );
 }
-
