@@ -65,7 +65,10 @@ export default function HomeClient({
       const res = await fetch("/api/delete-beat", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: pendingRemovalId, password }),
+        body: JSON.stringify({
+          id: pendingRemovalId,
+          password: isAdmin ? "ADMIN_BYPASS" : password,
+        }),
       });
 
       const data = await res.json();
@@ -89,7 +92,8 @@ export default function HomeClient({
 
   return (
     <div className="w-full">
-      {/* ADMIN LOGIN BUTTON (if not admin) */}
+
+      {/* ADMIN LOGIN BUTTON */}
       {!isAdmin && (
         <div className="max-w-6xl mx-auto px-4 mb-6">
           <button
@@ -142,11 +146,11 @@ export default function HomeClient({
       {/* ADMIN UPLOAD BUTTON */}
       {isAdmin && (
         <div className="max-w-6xl mx-auto px-4 mb-10">
-          <UploadBeatButton />
+          <UploadBeatButton isAdmin={isAdmin} />
         </div>
       )}
 
-      {/* ⭐ EXIT ADMIN BUTTON (NEW) */}
+      {/* EXIT ADMIN BUTTON */}
       {isAdmin && (
         <div className="max-w-6xl mx-auto px-4 mb-6">
           <button
@@ -164,7 +168,41 @@ export default function HomeClient({
       {/* DELETE MODAL */}
       {pendingRemovalId && (
         <section className="border-y border-rose-200 bg-rose-50">
-          {/* ... unchanged ... */}
+          <div className="max-w-6xl mx-auto px-4 py-4">
+            <p className="font-bold text-rose-700">Confirm Delete</p>
+            {!isAdmin && (
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Owner password"
+                className="mt-2 h-11 rounded-md border border-rose-300 bg-white px-4 text-sm text-slate-900 outline-none focus:border-rose-500"
+              />
+            )}
+
+            {error && (
+              <p className="mt-2 text-sm font-semibold text-rose-700">
+                {error}
+              </p>
+            )}
+
+            <div className="mt-4 flex gap-3">
+              <button
+                onClick={handleConfirmRemoval}
+                disabled={loading}
+                className="h-11 rounded-md bg-rose-600 px-5 text-sm font-bold text-white hover:bg-rose-700 transition disabled:bg-rose-300"
+              >
+                {loading ? "Deleting..." : "Delete"}
+              </button>
+
+              <button
+                onClick={closeModal}
+                className="h-11 rounded-md border border-slate-300 bg-white px-5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </section>
       )}
 
