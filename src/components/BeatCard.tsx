@@ -59,18 +59,7 @@ export default function BeatCard({
             sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
             className="object-cover transition duration-300 group-hover:scale-105"
           />
-        ) : (
-          <div className={`grid h-full w-full place-items-center bg-gradient-to-br ${artStyle}`}>
-            <div className="grid h-24 w-24 place-items-center rounded-full border border-white/30 bg-white/10 text-5xl font-black text-white shadow-xl backdrop-blur">
-              M
-            </div>
-          </div>
-        )}
-
-        <div className="absolute left-3 top-3 rounded-md bg-white/90 px-3 py-1 text-[10px] font-black tracking-widest text-slate-900 shadow-sm">
-          BEAT
-        </div>
-      </div>
+        ) : null}
 
       {/* Content */}
       <div className="p-5">
