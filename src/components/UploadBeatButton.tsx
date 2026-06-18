@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export default function UploadBeatButton() {
+export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
