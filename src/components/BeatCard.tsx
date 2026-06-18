@@ -71,9 +71,6 @@ export default function BeatCard({
             <h3 className="truncate text-lg font-black text-slate-950">
               {beat.title}
             </h3>
-            <p className="mt-1 text-xs text-slate-500">
-              Instant preview & checkout
-            </p>
           </div>
 
           <p className="shrink-0 rounded-md bg-slate-950 px-3 py-1.5 text-sm font-black text-white">
