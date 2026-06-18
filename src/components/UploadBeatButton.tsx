@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-export default function UploadBeatButton() {
+export default function UploadBeatButton({ isAdmin }: { isAdmin: boolean }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
