@@ -25,12 +25,6 @@ export default function RootLayout({
             </h2>
 
             <nav className="flex items-center gap-6 text-sm font-medium text-slate-600">
-              <a href="/" className="hover:text-slate-900 transition">
-                Home
-              </a>
-              <a href="/contact" className="hover:text-slate-900 transition">
-                Contact
-              </a>
             </nav>
           </div>
         </header>
