@@ -1,3 +1,10 @@
+export const config = {
+  api: {
+    bodyParser: false,
+    sizeLimit: "100mb",
+  },
+};
+
 import { getSupabaseAdmin } from "@/lib/supabaseServer";
 
 export const runtime = "nodejs";
