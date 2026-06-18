@@ -1,4 +1,6 @@
+import "./globals.css";
 
+import "./globals.css";
 
 export default function RootLayout({
   children,
@@ -17,11 +19,8 @@ export default function RootLayout({
           color: "#0f172a",
         }}
       >
-
-        {/* PAGE CONTENT */}
         {children}
 
-        {/* FOOTER */}
         <footer className="mt-20 border-t border-slate-200 py-10 text-center text-sm text-slate-500">
           © {new Date().getFullYear()} Melvey Beats — All rights reserved
         </footer>
@@ -29,3 +28,4 @@ export default function RootLayout({
     </html>
   );
 }
+
