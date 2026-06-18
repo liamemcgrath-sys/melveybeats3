@@ -17,17 +17,27 @@
 }
 
 /* ----------------------------------------
-   Global Background
+   Prevent White Flash Before Tailwind Loads
 ---------------------------------------- */
+html,
 body {
-  background: linear-gradient(
-    135deg,
-    #eef7ff 0%,
-    #dbeafe 35%,
-    #93c5fd 100%
-  );
-  color: var(--foreground);
-  min-height: 100vh;
+  background-color: #eef7ff; /* matches gradient start */
+}
+
+/* ----------------------------------------
+   Global Background (Tailwind Base Layer)
+---------------------------------------- */
+@layer base {
+  body {
+    background: linear-gradient(
+      135deg,
+      #eef7ff 0%,
+      #dbeafe 35%,
+      #93c5fd 100%
+    );
+    color: var(--foreground);
+    min-height: 100vh;
+  }
 }
 
 /* ----------------------------------------
