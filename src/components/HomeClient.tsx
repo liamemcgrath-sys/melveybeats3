@@ -213,7 +213,8 @@ export default function HomeClient({
                 key={beat.id}
                 beat={beat}
                 index={index}
-                onRemove={() => handleRemove(beat.id)}
+                isAdmin={isAdmin} // NEW
+                onRemove={isAdmin ? () => handleRemove(beat.id) : undefined} // NEW
               />
             ))}
           </div>
