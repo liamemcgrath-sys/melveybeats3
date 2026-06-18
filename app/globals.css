@@ -10,10 +10,10 @@
   --foreground: #0f172a;
 
   /* Brand Colors */
-  --brand-blue: #06b6d4;       /* cyan-500 */
-  --brand-blue-dark: #0e7490;  /* cyan-700 */
-  --brand-green: #22c55e;      /* green-500 */
-  --brand-green-dark: #15803d; /* green-700 */
+  --brand-blue: #06b6d4;
+  --brand-blue-dark: #0e7490;
+  --brand-green: #22c55e;
+  --brand-green-dark: #15803d;
 }
 
 /* ----------------------------------------
@@ -51,7 +51,7 @@ html {
    Text Selection
 ---------------------------------------- */
 ::selection {
-  background: rgba(6, 182, 212, 0.25); /* cyan-500 tint */
+  background: rgba(6, 182, 212, 0.25);
   color: #0f172a;
 }
 
