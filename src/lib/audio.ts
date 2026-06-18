@@ -3,7 +3,7 @@ export async function generatePreview(file: File): Promise<File> {
   const audioCtx = new AudioContext();
   const decoded = await audioCtx.decodeAudioData(arrayBuffer);
 
-  const duration = Math.min(decoded.duration, 30); // 30 sec preview
+  const duration = Math.min(decoded.duration, 30);
   const sampleRate = decoded.sampleRate;
 
   const previewBuffer = audioCtx.createBuffer(
@@ -22,9 +22,6 @@ export async function generatePreview(file: File): Promise<File> {
   return new File([wavBlob], "preview.wav", { type: "audio/wav" });
 }
 
-/**
- * Clean, stable WAV encoder — no worker needed
- */
 function encodeWav(buffer: AudioBuffer): Blob {
   const numChannels = buffer.numberOfChannels;
   const sampleRate = buffer.sampleRate;
@@ -48,26 +45,22 @@ function encodeWav(buffer: AudioBuffer): Blob {
     }
   }
 
-  // RIFF header
   writeString("RIFF");
   view.setUint32(offset, 36 + dataSize, true); offset += 4;
   writeString("WAVE");
 
-  // fmt chunk
   writeString("fmt ");
-  view.setUint32(offset, 16, true); offset += 4; // chunk size
-  view.setUint16(offset, 1, true); offset += 2; // PCM
+  view.setUint32(offset, 16, true); offset += 4;
+  view.setUint16(offset, 1, true); offset += 2;
   view.setUint16(offset, numChannels, true); offset += 2;
   view.setUint32(offset, sampleRate, true); offset += 4;
   view.setUint32(offset, byteRate, true); offset += 4;
   view.setUint16(offset, blockAlign, true); offset += 2;
-  view.setUint16(offset, 16, true); offset += 2; // bits per sample
+  view.setUint16(offset, 16, true); offset += 2;
 
-  // data chunk
   writeString("data");
   view.setUint32(offset, dataSize, true); offset += 4;
 
-  // Write PCM samples
   for (let i = 0; i < samples; i++) {
     for (let ch = 0; ch < numChannels; ch++) {
       const sample = buffer.getChannelData(ch)[i];
