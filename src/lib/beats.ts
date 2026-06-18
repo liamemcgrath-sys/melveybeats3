@@ -5,7 +5,7 @@ export type Beat = {
   url?: string | null;
   audio_url?: string | null;   // preview
   cover_url?: string | null;
-  fullAudioPath?: string | null; // ⭐ full beat file path
+  fullAudioPath?: string | null; // full beat file path
 };
 
 export type DisplayBeat = {
@@ -14,7 +14,7 @@ export type DisplayBeat = {
   price: number;
   audioUrl: string;        // preview
   coverUrl?: string;
-  fullAudioPath: string;   // ⭐ full beat file path
+  fullAudioPath: string;   // full beat file path
 };
 
 export function toDisplayBeat(beat: Beat): DisplayBeat {
@@ -26,6 +26,6 @@ export function toDisplayBeat(beat: Beat): DisplayBeat {
     price: Number.isFinite(price) ? price : 0,
     audioUrl: beat.audio_url || beat.url || "",
     coverUrl: beat.cover_url || undefined,
-    fullAudioPath: beat.fullAudioPath || "", // ⭐ required for checkout + download
+    fullAudioPath: beat.fullAudioPath || "",
   };
 }
