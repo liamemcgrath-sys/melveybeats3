@@ -1,133 +1,79 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
+import { DisplayBeat } from "@/types";
 
-export default function UploadBeatButton() {
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  const [file, setFile] = useState<File | null>(null);
-  const [title, setTitle] = useState("");
-  const [price, setPrice] = useState("0");
-  const [password, setPassword] = useState("");
+export default function BeatCard({
+  beat,
+  index,
+  isAdmin,
+  onRemove,
+}: {
+  beat: DisplayBeat;
+  index: number;
+  isAdmin: boolean;
+  onRemove?: () => void;
+}) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const openPicker = () => fileRef.current?.click();
-
-  async function upload() {
-    if (!file) {
-      setError("Select a file first");
-      return;
-    }
+  async function handleDelete() {
+    if (!onRemove) return;
+    if (!confirm(`Delete "${beat.title}"?`)) return;
 
     setLoading(true);
-    setError("");
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("title", title);
-      formData.append("price", price);
-      formData.append("password", password || ""); // admin bypass handled server-side
-
-      const res = await fetch("/api/add-beat", {
-        method: "POST",
-        body: formData,
+      const res = await fetch(`/api/delete-beat?id=${beat.id}`, {
+        method: "DELETE",
       });
 
       const data = await res.json();
-
       if (!res.ok) {
-        setError(data.error || "Upload failed");
+        alert(data.error || "Delete failed");
         return;
       }
 
-      // Refresh page to show new beat
-      window.location.reload();
+      onRemove();
     } catch (err) {
-      setError("Upload error");
+      alert("Delete error");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="w-full rounded-xl border border-cyan-200 bg-white p-5 shadow-sm">
-      <h3 className="text-lg font-black text-slate-900">Upload Beat</h3>
+    <div className="rounded-xl border border-cyan-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+      {/* TITLE */}
+      <h2 className="text-lg font-black text-slate-900">{beat.title}</h2>
 
-      <div className="mt-4 grid gap-4">
-        {/* PASSWORD */}
-        <label className="grid gap-1 text-sm font-semibold text-slate-700">
-          Owner Password
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password"
-            className="input"
-          />
-        </label>
-
-        {/* TITLE */}
-        <label className="grid gap-1 text-sm font-semibold text-slate-700">
-          Title
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Beat title"
-            className="input"
-          />
-        </label>
-
-        {/* PRICE */}
-        <label className="grid gap-1 text-sm font-semibold text-slate-700">
-          Price (USD)
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            placeholder="0.00"
-            className="input"
-          />
-        </label>
-      </div>
-
-      {/* BUTTON */}
-      <button
-        onClick={openPicker}
-        disabled={loading || !password}
-        className="mt-5 h-12 w-full rounded-md bg-gradient-to-br from-cyan-600 to-green-500 text-white text-sm font-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-slate-400"
-      >
-        {loading ? "Uploading..." : "Choose Beat File"}
-      </button>
-
-      {/* HIDDEN FILE INPUT */}
-      <input
-        ref={fileRef}
-        type="file"
-        accept=".mp3,.wav"
-        className="hidden"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
+      {/* AUDIO PREVIEW */}
+      <audio
+        controls
+        src={beat.audio_url}
+        className="mt-3 w-full"
       />
 
-      {/* ERROR */}
-      {error && (
-        <p className="mt-3 rounded-md bg-rose-100 px-3 py-2 text-sm font-semibold text-rose-700">
-          {error}
-        </p>
-      )}
+      {/* PRICE */}
+      <p className="mt-3 text-sm font-semibold text-slate-700">
+        ${beat.price.toFixed(2)}
+      </p>
 
-      {/* UPLOAD BUTTON */}
-      {file && (
+      {/* BUY BUTTON */}
+      <a
+        href={`/checkout?beatId=${beat.id}`}
+        className="mt-4 block h-11 w-full rounded-md bg-gradient-to-br from-cyan-600 to-green-500 text-center text-white text-sm font-black leading-[44px] hover:opacity-90 transition"
+      >
+        Buy Now
+      </a>
+
+      {/* ADMIN DELETE BUTTON */}
+      {isAdmin && (
         <button
-          onClick={upload}
+          onClick={handleDelete}
           disabled={loading}
-          className="mt-4 h-12 w-full rounded-md bg-slate-900 text-white text-sm font-black transition hover:bg-slate-800 disabled:bg-slate-400"
+          className="mt-3 h-10 w-full rounded-md bg-rose-600 text-white text-sm font-black hover:bg-rose-700 transition disabled:bg-rose-300"
         >
-          {loading ? "Uploading..." : "Upload Beat"}
+          {loading ? "Deleting..." : "Delete Beat"}
         </button>
       )}
     </div>
