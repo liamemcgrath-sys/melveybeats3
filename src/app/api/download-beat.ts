@@ -40,18 +40,17 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // 3. Generate a signed URL (expires in 5 minutes)
+  // 3. Generate signed URL for full beat
   const { data, error } = await supabase.storage
     .from("beats")
-    .createSignedUrl(fullAudioPath, 300); // 300 seconds = 5 minutes
+    .createSignedUrl(fullAudioPath, 60 * 60); // 1 hour
 
   if (error || !data?.signedUrl) {
     return NextResponse.json(
-      { error: "Failed to generate download link" },
+      { error: "Failed to generate download URL" },
       { status: 500 }
     );
   }
 
-  // 4. Redirect user to the signed URL
-  return NextResponse.redirect(data.signedUrl);
+  return NextResponse.json({ url: data.signedUrl });
 }
