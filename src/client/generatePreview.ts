@@ -1,4 +1,9 @@
 export async function generatePreview(file: File): Promise<Blob> {
+  // ✅ Prevent server‑side rendering crash
+  if (typeof window === "undefined") {
+    return new Blob();
+  }
+
   const arrayBuffer = await file.arrayBuffer();
   const audioContext = new AudioContext();
   const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
@@ -25,7 +30,7 @@ export async function generatePreview(file: File): Promise<Blob> {
   node.start();
 
   const recorder = new MediaRecorder(dest.stream, {
-    mimeType: "audio/webm;codecs=opus"
+    mimeType: "audio/webm;codecs=opus",
   });
 
   const chunks: BlobPart[] = [];
