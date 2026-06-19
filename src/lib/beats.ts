@@ -12,7 +12,6 @@ export function toDisplayBeat(
     price: Number.isFinite(price) ? price : 0,
     audio_url: beat.audio_url || "",
     fullAudioPath: beat.fullAudioPath || "",
-    cover_url: beat.cover_url || undefined,
     created_at: beat.created_at ?? undefined,
   };
 }
