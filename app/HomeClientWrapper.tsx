@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 
 const HomeClient = dynamic(
-  () => import("@/src/components/HomeClient"),
+  () => import("@/components/HomeClient"),
   { ssr: false }
 );
 
