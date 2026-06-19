@@ -1,13 +1,17 @@
-import type { DisplayBeat } from "@/types";
-export type Beat = {
-  id: string;
-  title: string | null;
-  price: number | string | null;
-  url?: string | null;
-  audio_url?: string | null;   // preview
-  cover_url?: string | null;
-  fullAudioPath?: string | null; // full beat file path
-};
+import { Database } from "./database";
+
+export function toDisplayBeat(beat: Database["public"]["Tables"]["beats"]["Row"]) {
+  return {
+    id: beat.id,
+    title: beat.title,
+    price: beat.price,
+    audio_url: beat.audio_url,        // correct
+    fullAudioPath: beat.fullAudioPath,
+    cover_url: beat.cover_url,
+    created_at: beat.created_at,
+  };
+
+
 
 
 export function toDisplayBeat(beat: Beat): DisplayBeat {
