@@ -1,5 +1,6 @@
 import Stripe from "stripe";
-import { toDisplayBeat, type Beat } from "@/lib/beats";
+import { toDisplayBeat } from "@/lib/beats";
+import type { Beat } from "@/types";
 import { getSupabaseAdmin } from "@/lib/supabaseServer";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY?.trim();
