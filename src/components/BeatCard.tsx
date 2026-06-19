@@ -23,8 +23,15 @@ export default function BeatCard({
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/delete-beat?id=${beat.id}`, {
+      const res = await fetch("/api/delete-beat", {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: beat.id,
+          password: "ADMIN_BYPASS", // ⭐ REQUIRED FOR ADMIN MODE
+        }),
       });
 
       const data = await res.json();
@@ -43,22 +50,14 @@ export default function BeatCard({
 
   return (
     <div className="relative z-20 rounded-xl border border-cyan-200 bg-white p-5 shadow-sm hover:shadow-md transition">
-      {/* TITLE */}
       <h2 className="text-lg font-black text-slate-900">{beat.title}</h2>
 
-      {/* AUDIO PREVIEW */}
-      <audio
-        controls
-        src={beat.audio_url}
-        className="mt-3 w-full"
-      />
+      <audio controls src={beat.audio_url} className="mt-3 w-full" />
 
-      {/* PRICE */}
       <p className="mt-3 text-sm font-semibold text-slate-700">
         ${beat.price.toFixed(2)}
       </p>
 
-      {/* BUY BUTTON */}
       <a
         href={`/checkout?beatId=${beat.id}`}
         className="mt-4 block h-11 w-full rounded-md bg-gradient-to-br from-cyan-600 to-green-500 text-center text-white text-sm font-black leading-[44px] hover:opacity-90 transition"
@@ -66,7 +65,6 @@ export default function BeatCard({
         Buy Now
       </a>
 
-      {/* ADMIN DELETE BUTTON */}
       {isAdmin && (
         <button
           onClick={handleDelete}
