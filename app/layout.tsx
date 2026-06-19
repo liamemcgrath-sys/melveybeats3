@@ -3,7 +3,8 @@ import "./globals.css";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen text-slate-900">
+      <body className="relative z-0 min-h-screen text-slate-900">
+
 
         <div className="h-1 w-full bg-gradient-to-r from-cyan-600 to-green-500" />
 
