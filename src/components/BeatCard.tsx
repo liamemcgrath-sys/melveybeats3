@@ -42,7 +42,7 @@ export default function BeatCard({
   }
 
   return (
-    <div className="rounded-xl border border-cyan-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+    <div className="relative z-20 rounded-xl border border-cyan-200 bg-white p-5 shadow-sm hover:shadow-md transition">
       {/* TITLE */}
       <h2 className="text-lg font-black text-slate-900">{beat.title}</h2>
 
