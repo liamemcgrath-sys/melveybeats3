@@ -12,7 +12,8 @@ export default async function Home() {
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return (
-      <main className="relative z-10 max-w-6xl mx-auto px-4 py-16">
+      <main className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-40">
+
         <p className="mt-2 text-slate-500">No beats available.</p>
       </main>
     );
