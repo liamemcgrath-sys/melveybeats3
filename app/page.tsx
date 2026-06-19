@@ -1,6 +1,4 @@
 import dynamic from "next/dynamic";
-
-
 import { toDisplayBeat } from "@/lib/beats";
 import type { Database } from "@/lib/database";
 import { createClient } from "@supabase/supabase-js";
