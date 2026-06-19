@@ -19,9 +19,16 @@
 /* ----------------------------------------
    Prevent White Flash Before Tailwind Loads
 ---------------------------------------- */
-html,
-body {
-  background-color: #eef7ff; /* matches gradient start */
+
+
+/* ----------------------------------------
+   Global Background (Tailwind Base Layer)
+---------------------------------------- */
+/* ----------------------------------------
+   Prevent White Flash Before Tailwind Loads
+---------------------------------------- */
+html {
+  background-color: #eef7ff; /* only html gets fallback */
 }
 
 /* ----------------------------------------
@@ -39,6 +46,7 @@ body {
     min-height: 100vh;
   }
 }
+
 
 /* ----------------------------------------
    Smooth Scrolling
