@@ -13,7 +13,6 @@ export default async function Home() {
   if (!supabaseUrl || !supabaseAnonKey) {
     return (
       <main className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-40">
-
         <p className="mt-2 text-slate-500">No beats available.</p>
       </main>
     );
@@ -28,7 +27,7 @@ export default async function Home() {
 
   if (error) {
     return (
-      <main className="relative z-10 max-w-6xl mx-auto px-4 py-16">
+      <main className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-40">
         <h1 className="text-4xl font-black text-blue-600 text-center">
           Melvey Beats
         </h1>
@@ -42,7 +41,7 @@ export default async function Home() {
   const displayBeats = (beats ?? []).map(toDisplayBeat);
 
   return (
-    <main className="relative z-10 max-w-6xl mx-auto px-4 py-16">
+    <main className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-40">
       <section className="text-center mb-16">
         <h1 className="text-5xl font-black tracking-tight text-blue-600 text-center">
           Melvey Beats
