@@ -1,6 +1,5 @@
 import Stripe from "stripe";
 import { toDisplayBeat } from "@/lib/beats";
-import type { Beat } from "@/types";
 import { getSupabaseAdmin } from "@/lib/supabaseServer";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY?.trim();
@@ -66,7 +65,8 @@ export async function POST(req: Request) {
     return Response.json({ error: "Beat not found" }, { status: 404 });
   }
 
-  const beat = toDisplayBeat(dbBeat as Beat);
+  // Convert DB row → DisplayBeat
+  const beat = toDisplayBeat(dbBeat);
   const unitAmount = Math.max(100, Math.round(beat.price * 100));
 
   if (!stripe) {
@@ -81,7 +81,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // ⭐ IMPORTANT: include fullAudioPath for secure download
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
@@ -102,10 +101,9 @@ export async function POST(req: Request) {
     metadata: {
       beatId: beat.id,
       beatTitle: beat.title,
-      fullAudioPath: beat.fullAudioPath, // ⭐ REQUIRED FOR BEATSTARS-STYLE DELIVERY
+      fullAudioPath: beat.fullAudioPath,
     },
   });
 
   return Response.json({ url: session.url, sessionId: session.id });
 }
-
