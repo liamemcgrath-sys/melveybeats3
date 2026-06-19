@@ -4,7 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
-import HomeClient from "./HomeClientWrapper";
+import HomeClient from "@/components/HomeClient";
+
 
 export default async function Home() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
