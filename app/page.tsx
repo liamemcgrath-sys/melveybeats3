@@ -1,4 +1,3 @@
-import dynamic from "next/dynamic";
 import { toDisplayBeat } from "@/lib/beats";
 import type { Database } from "@/lib/database";
 import { createClient } from "@supabase/supabase-js";
@@ -6,7 +5,6 @@ import { createClient } from "@supabase/supabase-js";
 export const dynamic = "force-dynamic";
 
 import HomeClient from "./HomeClientWrapper";
-
 
 export default async function Home() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
