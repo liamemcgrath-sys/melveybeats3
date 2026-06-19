@@ -15,6 +15,43 @@ export default function BeatCard({
   onRemove?: () => void;
 }) {
   const [loading, setLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  async function handleCheckout() {
+    if (checkoutLoading) return;
+
+    setCheckoutLoading(true);
+
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          beatId: beat.id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Checkout failed");
+        return;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        alert("No checkout URL returned");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error during checkout");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  }
 
   async function handleDelete() {
     if (!onRemove) return;
@@ -30,11 +67,12 @@ export default function BeatCard({
         },
         body: JSON.stringify({
           id: beat.id,
-          password: "ADMIN_BYPASS", // ⭐ REQUIRED FOR ADMIN MODE
+          password: "ADMIN_BYPASS", // keep only if your backend still uses it
         }),
       });
 
       const data = await res.json();
+
       if (!res.ok) {
         alert(data.error || "Delete failed");
         return;
@@ -42,6 +80,7 @@ export default function BeatCard({
 
       onRemove();
     } catch (err) {
+      console.error(err);
       alert("Delete error");
     } finally {
       setLoading(false);
@@ -50,21 +89,30 @@ export default function BeatCard({
 
   return (
     <div className="relative z-20 rounded-xl border border-cyan-200 bg-white p-5 shadow-sm hover:shadow-md transition">
-      <h2 className="text-lg font-black text-slate-900">{beat.title}</h2>
 
+      {/* TITLE */}
+      <h2 className="text-lg font-black text-slate-900">
+        {beat.title}
+      </h2>
+
+      {/* AUDIO */}
       <audio controls src={beat.audio_url} className="mt-3 w-full" />
 
+      {/* PRICE */}
       <p className="mt-3 text-sm font-semibold text-slate-700">
         ${beat.price.toFixed(2)}
       </p>
 
-      <a
-        href={`/checkout?beatId=${beat.id}`}
-        className="mt-4 block h-11 w-full rounded-md bg-gradient-to-br from-cyan-600 to-green-500 text-center text-white text-sm font-black leading-[44px] hover:opacity-90 transition"
+      {/* BUY BUTTON (NEW STRIPE FLOW) */}
+      <button
+        onClick={handleCheckout}
+        disabled={checkoutLoading}
+        className="mt-4 block h-11 w-full rounded-md bg-gradient-to-br from-cyan-600 to-green-500 text-center text-white text-sm font-black hover:opacity-90 transition disabled:opacity-50"
       >
-        Buy Now
-      </a>
+        {checkoutLoading ? "Redirecting..." : "Buy Now"}
+      </button>
 
+      {/* ADMIN DELETE */}
       {isAdmin && (
         <button
           onClick={handleDelete}
