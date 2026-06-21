@@ -12,14 +12,8 @@ export default function PreviewPlayer({ src }: { src: string }) {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const onLoaded = () => {
-      setDuration(audio.duration || 0);
-    };
-
-    const onTime = () => {
-      setProgress(audio.currentTime);
-    };
-
+    const onLoaded = () => setDuration(audio.duration || 0);
+    const onTime = () => setProgress(audio.currentTime);
     const onEnd = () => {
       setIsPlaying(false);
       setProgress(0);
@@ -63,24 +57,24 @@ export default function PreviewPlayer({ src }: { src: string }) {
       <audio ref={audioRef} src={src} preload="auto" className="hidden" />
 
       <div className="flex items-center gap-3">
-        {/* CLEAN PLAY BUTTON */}
+        {/* CLEAN LIGHT-BLUE PLAY BUTTON */}
         <button
           onClick={togglePlay}
-          className="h-10 w-10 flex items-center justify-center rounded-full bg-cyan-600 text-white text-lg font-bold shadow hover:bg-cyan-700 transition"
+          className="h-10 w-10 flex items-center justify-center rounded-full bg-sky-300 text-white shadow hover:bg-sky-400 transition"
         >
-          {isPlaying ? "❚❚" : "▶"}
-        </button>
-
-        {/* PROGRESS BAR */}
-        <input
-          type="range"
-          min={0}
-          max={duration || 0}
-          value={progress}
-          onChange={scrub}
-          className="flex-1 accent-cyan-600 cursor-pointer"
-        />
-      </div>
-    </div>
-  );
-}
+          {isPlaying ? (
+            // Pause Icon
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="white"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 9v6m4-6v6" />
+            </svg>
+          ) : (
+            // Play Icon
+            <svg
+              xmlns="http://www
