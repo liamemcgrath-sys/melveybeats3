@@ -85,31 +85,29 @@ export default function HomeClient({
   return (
     <div className="w-full relative z-10">
 
-      {/* TOP HEADER */}
-      <header className="w-full border-b border-cyan-200 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      {/* TOP BAR — CLEAN, NO WHITE BOX */}
+      <div className="w-full max-w-6xl mx-auto px-4 pt-4 flex items-center justify-end">
+        {!isAdmin ? (
+          <button
+            onClick={() => setShowAdminLogin(true)}
+            className="btn-primary"
+          >
+            Admin Login
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsAdmin(false)}
+            className="btn-secondary"
+          >
+            Exit Admin
+          </button>
+        )}
+      </div>
 
-          {/* LEFT: SITE TITLE */}
-          <h1 className="text-3xl font-bold text-cyan-800">Melvey Beats</h1>
-
-          {/* RIGHT: ADMIN LOGIN / EXIT ADMIN */}
-          {!isAdmin ? (
-            <button
-              onClick={() => setShowAdminLogin(true)}
-              className="btn-primary"
-            >
-              Admin Login
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsAdmin(false)}
-              className="btn-secondary"
-            >
-              Exit Admin
-            </button>
-          )}
-        </div>
-      </header>
+      {/* TITLE */}
+      <div className="w-full max-w-6xl mx-auto px-4 mt-2">
+        <h1 className="text-3xl font-bold text-cyan-800">Melvey Beats</h1>
+      </div>
 
       {/* ADMIN MODE BANNER */}
       {isAdmin && (
