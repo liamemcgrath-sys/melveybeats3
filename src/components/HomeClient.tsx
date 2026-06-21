@@ -106,7 +106,7 @@ export default function HomeClient({
 
       {/* TITLE */}
       <div className="w-full max-w-6xl mx-auto px-4 mt-2">
-        <h1 className="text-3xl font-bold text-cyan-800">Melvey Beats</h1>
+        <h1 className="text-3xl font-bold text-cyan-800">Beat Previews</h1>
       </div>
 
       {/* ADMIN MODE BANNER */}
