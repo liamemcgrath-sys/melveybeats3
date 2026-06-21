@@ -1,13 +1,16 @@
+import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseServer";
 
 async function removeBeat(req: Request) {
   try {
     const method = req.method;
 
-    // Support DELETE with JSON body OR query string
     let id: string | null = null;
     let password: string | undefined = undefined;
 
+    //
+    // 1. Extract ID + password depending on method + content type
+    //
     if (method === "DELETE") {
       const contentType = req.headers.get("content-type") || "";
 
@@ -28,41 +31,47 @@ async function removeBeat(req: Request) {
       password = body?.password;
     }
 
-    // ⭐ ADMIN BYPASS
+    //
+    // 2. Admin bypass or owner password
+    //
     if (password !== "ADMIN_BYPASS") {
       if (!process.env.OWNER_PASSWORD || password !== process.env.OWNER_PASSWORD) {
-        return Response.json(
+        return NextResponse.json(
           { success: false, error: "Unauthorized" },
           { status: 403 }
         );
       }
     }
 
-    // Validate ID
+    //
+    // 3. Validate ID
+    //
     if (!id || typeof id !== "string") {
-      return Response.json(
+      return NextResponse.json(
         { success: false, error: "Missing or invalid beat id" },
         { status: 400 }
       );
     }
 
-    // Delete from Supabase
+    //
+    // 4. Delete from Supabase
+    //
     const supabase = getSupabaseAdmin();
     const { error } = await supabase.from("beats").delete().eq("id", id);
 
     if (error) {
       console.error("Supabase delete error:", error);
-      return Response.json(
+      return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
       );
     }
 
-    return Response.json({ success: true });
+    return NextResponse.json({ success: true });
 
   } catch (err) {
     console.error("Delete route error:", err);
-    return Response.json(
+    return NextResponse.json(
       { success: false, error: "Server error" },
       { status: 500 }
     );
