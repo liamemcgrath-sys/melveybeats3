@@ -12,21 +12,21 @@ export default function PreviewPlayer({ src }: { src: string }) {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const onLoaded = () => setDuration(audio.duration || 0);
-    const onTime = () => setProgress(audio.currentTime);
-    const onEnd = () => {
+    const handleLoaded = () => setDuration(audio.duration || 0);
+    const handleTime = () => setProgress(audio.currentTime);
+    const handleEnd = () => {
       setIsPlaying(false);
       setProgress(0);
     };
 
-    audio.addEventListener("loadedmetadata", onLoaded);
-    audio.addEventListener("timeupdate", onTime);
-    audio.addEventListener("ended", onEnd);
+    audio.addEventListener("loadedmetadata", handleLoaded);
+    audio.addEventListener("timeupdate", handleTime);
+    audio.addEventListener("ended", handleEnd);
 
     return () => {
-      audio.removeEventListener("loadedmetadata", onLoaded);
-      audio.removeEventListener("timeupdate", onTime);
-      audio.removeEventListener("ended", onEnd);
+      audio.removeEventListener("loadedmetadata", handleLoaded);
+      audio.removeEventListener("timeupdate", handleTime);
+      audio.removeEventListener("ended", handleEnd);
     };
   }, []);
 
@@ -77,4 +77,26 @@ export default function PreviewPlayer({ src }: { src: string }) {
           ) : (
             // Play Icon
             <svg
-              xmlns="http://www
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="white"
+              viewBox="0 0 24 24"
+            >
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          )}
+        </button>
+
+        {/* PROGRESS BAR */}
+        <input
+          type="range"
+          min={0}
+          max={duration || 0}
+          value={progress}
+          onChange={scrub}
+          className="flex-1 accent-sky-400 cursor-pointer"
+        />
+      </div>
+    </div>
+  );
+}
