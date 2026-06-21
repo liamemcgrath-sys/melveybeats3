@@ -11,6 +11,7 @@ export function toDisplayBeat(
     title: beat.title?.trim() || "Untitled",
     price: Number.isFinite(price) ? price : 0,
     audio_url: beat.audio_url || "",
+    preview_url: beat.preview_url || "",     // ⭐ ADD THIS
     fullAudioPath: beat.fullAudioPath || "",
     created_at: beat.created_at ?? undefined,
   };
