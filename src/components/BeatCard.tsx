@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { DisplayBeat } from "@/types";
+import PreviewPlayer from "@/components/PreviewPlayer"; // ⭐ ADD THIS
 
 export default function BeatCard({
   beat,
@@ -67,7 +68,7 @@ export default function BeatCard({
         },
         body: JSON.stringify({
           id: beat.id,
-          password: "ADMIN_BYPASS", // keep only if your backend still uses it
+          password: "ADMIN_BYPASS",
         }),
       });
 
@@ -95,15 +96,15 @@ export default function BeatCard({
         {beat.title}
       </h2>
 
-      {/* AUDIO */}
-      <audio controls src={beat.audio_url} className="mt-3 w-full" />
+      {/* CUSTOM PREVIEW PLAYER */}
+      <PreviewPlayer src={beat.preview_url || beat.audio_url} />
 
       {/* PRICE */}
       <p className="mt-3 text-sm font-semibold text-slate-700">
         ${beat.price.toFixed(2)}
       </p>
 
-      {/* BUY BUTTON (NEW STRIPE FLOW) */}
+      {/* BUY BUTTON */}
       <button
         onClick={handleCheckout}
         disabled={checkoutLoading}
