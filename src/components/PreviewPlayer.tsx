@@ -12,20 +12,27 @@ export default function PreviewPlayer({ src }: { src: string }) {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const updateProgress = () => {
+    const onLoaded = () => {
+      setDuration(audio.duration || 0);
+    };
+
+    const onTime = () => {
       setProgress(audio.currentTime);
     };
 
-    const setMeta = () => {
-      setDuration(audio.duration);
+    const onEnd = () => {
+      setIsPlaying(false);
+      setProgress(0);
     };
 
-    audio.addEventListener("timeupdate", updateProgress);
-    audio.addEventListener("loadedmetadata", setMeta);
+    audio.addEventListener("loadedmetadata", onLoaded);
+    audio.addEventListener("timeupdate", onTime);
+    audio.addEventListener("ended", onEnd);
 
     return () => {
-      audio.removeEventListener("timeupdate", updateProgress);
-      audio.removeEventListener("loadedmetadata", setMeta);
+      audio.removeEventListener("loadedmetadata", onLoaded);
+      audio.removeEventListener("timeupdate", onTime);
+      audio.removeEventListener("ended", onEnd);
     };
   }, []);
 
@@ -42,7 +49,7 @@ export default function PreviewPlayer({ src }: { src: string }) {
     }
   };
 
-  const handleScrub = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const scrub = (e: React.ChangeEvent<HTMLInputElement>) => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -52,25 +59,26 @@ export default function PreviewPlayer({ src }: { src: string }) {
   };
 
   return (
-    <div className="w-full mt-3">
-      <audio ref={audioRef} src={src} preload="metadata" className="hidden" />
+    <div className="mt-3 w-full">
+      <audio ref={audioRef} src={src} preload="auto" className="hidden" />
 
-      {/* Controls */}
       <div className="flex items-center gap-3">
+        {/* CLEAN PLAY BUTTON */}
         <button
           onClick={togglePlay}
-          className="h-10 w-10 flex items-center justify-center rounded-full bg-cyan-600 text-white font-bold"
+          className="h-10 w-10 flex items-center justify-center rounded-full bg-cyan-600 text-white text-lg font-bold shadow hover:bg-cyan-700 transition"
         >
           {isPlaying ? "❚❚" : "▶"}
         </button>
 
+        {/* PROGRESS BAR */}
         <input
           type="range"
           min={0}
           max={duration || 0}
           value={progress}
-          onChange={handleScrub}
-          className="flex-1 accent-cyan-600"
+          onChange={scrub}
+          className="flex-1 accent-cyan-600 cursor-pointer"
         />
       </div>
     </div>
