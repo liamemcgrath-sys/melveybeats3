@@ -2,55 +2,78 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-05-27.dahlia",
-});
-
-// IMPORTANT: service role key required for signed URLs
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function GET(req: NextRequest) {
-  const sessionId = req.nextUrl.searchParams.get("session_id");
+  try {
+    //
+    // 1. Create Stripe client INSIDE the handler
+    //
+    const stripeSecret = process.env.STRIPE_SECRET_KEY;
+    if (!stripeSecret) {
+      return NextResponse.json(
+        { error: "Stripe secret key missing" },
+        { status: 500 }
+      );
+    }
 
-  if (!sessionId) {
-    return NextResponse.json({ error: "Missing session_id" }, { status: 400 });
-  }
+    const stripe = new Stripe(stripeSecret, {
+      apiVersion: "2026-05-27.dahlia",
+    });
 
-  // 1. Verify Stripe session
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
+    //
+    // 2. Create Supabase client INSIDE the handler
+    //
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!session || session.payment_status !== "paid") {
-    return NextResponse.json(
-      { error: "Payment not verified" },
-      { status: 403 }
-    );
-  }
+    if (!supabaseUrl || !serviceRole) {
+      return NextResponse.json(
+        { error: "Supabase environment variables missing" },
+        { status: 500 }
+      );
+    }
 
-  // 2. Get beat info from metadata
-  const beatId = session.metadata?.beatId;
-  const fullAudioPath = session.metadata?.fullAudioPath;
+    const supabase = createClient(supabaseUrl, serviceRole);
 
-  if (!beatId || !fullAudioPath) {
-    return NextResponse.json(
-      { error: "Missing beat metadata" },
-      { status: 400 }
-    );
-  }
+    //
+    // 3. Extract session ID
+    //
+    const sessionId = req.nextUrl.searchParams.get("session_id");
 
-  // 3. Generate signed URL for full beat
-  const { data, error } = await supabase.storage
-    .from("beats")
-    .createSignedUrl(fullAudioPath, 60 * 60); // 1 hour
+    if (!sessionId) {
+      return NextResponse.json({ error: "Missing session_id" }, { status: 400 });
+    }
 
-  if (error || !data?.signedUrl) {
-    return NextResponse.json(
-      { error: "Failed to generate download URL" },
-      { status: 500 }
-    );
-  }
+    //
+    // 4. Verify Stripe session
+    //
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-  return NextResponse.json({ url: data.signedUrl });
-}
+    if (!session || session.payment_status !== "paid") {
+      return NextResponse.json(
+        { error: "Payment not verified" },
+        { status: 403 }
+      );
+    }
+
+    //
+    // 5. Extract metadata
+    //
+    const beatId = session.metadata?.beatId;
+    const fullAudioPath = session.metadata?.fullAudioPath;
+
+    if (!beatId || !fullAudioPath) {
+      return NextResponse.json(
+        { error: "Missing beat metadata" },
+        { status: 400 }
+      );
+    }
+
+    //
+    // 6. Generate signed URL
+    //
+    const { data, error } = await supabase.storage
+      .from("beats")
+      .createSignedUrl(fullAudioPath, 60 * 60); // 1 hour
+
+    if (error || !data?.signedUrl) {
+      return NextResponse.json
