@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="mt-20 border-t border-cyan-200 py-10 text-center text-sm text-cyan-700">
           © {new Date().getFullYear()} Melvey Beats — All rights reserved
         </footer>
+        <Analytics />
       </body>
     </html>
   );
