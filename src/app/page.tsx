@@ -6,15 +6,14 @@ export default function HomePage() {
       </h1>
 
       <p className="mt-6 text-xl text-slate-600">
-        Premium, custom‑crafted beats for artists who want to stand out.
-        Browse previews, purchase full-quality files, and level up your sound.
+        Cool Beats you can buy if u want
       </p>
 
       <a
         href="/beats"
         className="inline-block mt-10 px-8 py-4 text-lg font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition"
       >
-        Browse Beat Previews
+        Browse Catalog
       </a>
     </main>
   );
