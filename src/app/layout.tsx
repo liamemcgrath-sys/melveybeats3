@@ -10,6 +10,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {children}
 
+        <Analytics />
+
         <footer className="mt-20 border-t border-cyan-200 py-10 text-center text-sm text-cyan-700">
           © {new Date().getFullYear()} Melvey Beats — All rights reserved
         </footer>
