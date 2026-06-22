@@ -6,7 +6,7 @@ export default function HomePage() {
       </h1>
 
       <p className="mt-6 text-xl text-slate-600">
-        Cool Beats you can buy if u want
+        Cool beats you can buy if u want
       </p>
 
       <a
