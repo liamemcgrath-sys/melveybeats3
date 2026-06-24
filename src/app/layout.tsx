@@ -1,18 +1,17 @@
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next";
+import { AnalyticsClient } from "@/components/AnalyticsClient";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <head /> {/* ⭐ REQUIRED FOR HYDRATION */}
+      <head />
       <body className="relative z-0 min-h-screen text-slate-900">
 
-        {/* TOP GRADIENT BAR */}
         <div className="h-1 w-full bg-gradient-to-r from-cyan-600 to-green-500" />
 
         {children}
 
-        <Analytics />
+        <AnalyticsClient />
 
         <footer className="mt-20 border-t border-cyan-200 py-10 text-center text-sm text-cyan-700">
           © {new Date().getFullYear()} Melvey Beats — All rights reserved
