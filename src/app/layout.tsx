@@ -1,11 +1,13 @@
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head /> {/* ⭐ REQUIRED FOR HYDRATION */}
       <body className="relative z-0 min-h-screen text-slate-900">
 
-
+        {/* TOP GRADIENT BAR */}
         <div className="h-1 w-full bg-gradient-to-r from-cyan-600 to-green-500" />
 
         {children}
@@ -19,4 +21,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-
