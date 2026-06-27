@@ -58,7 +58,7 @@ export async function POST(req: Request) {
   const { data: dbBeat, error } = await supabase
     .from("beats")
     .select("*")
-    .eq("id", beatId)
+    .eq("id", Number(beatId))
     .single();
 
   if (error || !dbBeat) {
