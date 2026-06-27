@@ -1,4 +1,4 @@
-import type { Database } from "./database";
+import type { Database } from "./database.types";
 import type { DisplayBeat } from "@/types";
 
 export function toDisplayBeat(
