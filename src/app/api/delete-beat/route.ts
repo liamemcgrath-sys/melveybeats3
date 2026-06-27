@@ -57,7 +57,7 @@ async function removeBeat(req: Request) {
     // 4. Delete from Supabase
     //
     const supabase = getSupabaseAdmin();
-    const { error } = await supabase.from("beats").delete().eq("id", id);
+    const { error } = await supabase.from("beats").delete().eq("id", Number(id));
 
     if (error) {
       console.error("Supabase delete error:", error);
