@@ -2,12 +2,10 @@ export const runtime = "nodejs";
 export const preferredRegion = "iad1";
 export const dynamic = "force-dynamic";
 export const maxBodySize = "200mb";
-
-
-// Allow large uploads + long processing time
 export const maxDuration = 300;
 
 import { getSupabaseAdmin } from "@/lib/supabaseServer";
+import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 
 const allowedMimeTypes = new Set([
   "audio/mpeg",
@@ -19,11 +17,7 @@ const allowedMimeTypes = new Set([
 
 function isAllowedAudioFile(file: File) {
   const ext = file.name.split(".").pop()?.toLowerCase();
-  return (
-    allowedMimeTypes.has(file.type) ||
-    ext === "mp3" ||
-    ext === "wav"
-  );
+  return allowedMimeTypes.has(file.type) || ext === "mp3" || ext === "wav";
 }
 
 export async function POST(req: Request) {
@@ -32,19 +26,17 @@ export async function POST(req: Request) {
 
     // Password check
     const password = formData.get("password") as string | null;
-const correct = process.env.OWNER_PASSWORD;
+    const correct = process.env.OWNER_PASSWORD;
 
-// Allow bypass for internal admin tools
-if (password !== "ADMIN_BYPASS" && password !== correct) {
-  return Response.json({ error: "Incorrect owner password" }, { status: 403 });
-}
+    if (!password || password !== correct) {
+      return Response.json({ error: "Incorrect owner password" }, { status: 403 });
+    }
 
-    // Expect two files
+    // Expect ONE file now
     const full = formData.get("full") as File | null;
-    const preview = formData.get("preview") as File | null;
 
-    if (!full || !preview) {
-      return Response.json({ error: "Missing full or preview file" }, { status: 400 });
+    if (!full) {
+      return Response.json({ error: "Missing audio file" }, { status: 400 });
     }
 
     if (!isAllowedAudioFile(full)) {
@@ -58,9 +50,29 @@ if (password !== "ADMIN_BYPASS" && password !== correct) {
 
     // Filenames
     const fullName = `full-${Date.now()}-${full.name.replace(/\s/g, "_")}`;
-    const previewName = `preview-${Date.now()}-${preview.name.replace(/\s/g, "_")}`;
+    const previewName = `preview-${Date.now()}.mp3`;
 
+    //
+    // ⭐ Generate preview using FFmpeg (30 seconds)
+    //
+    const ffmpeg = createFFmpeg({ log: false });
+    await ffmpeg.load();
+
+    ffmpeg.FS("writeFile", "input.mp3", await fetchFile(full));
+
+    await ffmpeg.run(
+      "-i", "input.mp3",
+      "-t", "30",
+      "-acodec", "libmp3lame",
+      "-b:a", "128k",
+      "preview.mp3"
+    );
+
+    const previewData = ffmpeg.FS("readFile", "preview.mp3");
+
+    //
     // Upload full beat
+    //
     const { error: fullError } = await supabase.storage
       .from("beats")
       .upload(fullName, full);
@@ -69,23 +81,27 @@ if (password !== "ADMIN_BYPASS" && password !== correct) {
       return Response.json({ error: fullError.message }, { status: 500 });
     }
 
+    //
     // Upload preview
+    //
     const { error: previewError } = await supabase.storage
       .from("beats")
-      .upload(previewName, preview);
+      .upload(previewName, previewData);
 
     if (previewError) {
       return Response.json({ error: previewError.message }, { status: 500 });
     }
 
     // Public preview URL
-    const { data: previewData } = supabase.storage
+    const { data: previewUrlData } = supabase.storage
       .from("beats")
       .getPublicUrl(previewName);
 
-    const audio_url = previewData.publicUrl;
+    const audio_url = previewUrlData.publicUrl;
 
+    //
     // Insert DB row
+    //
     const { data: beat, error: dbError } = await supabase
       .from("beats")
       .insert({
@@ -104,6 +120,7 @@ if (password !== "ADMIN_BYPASS" && password !== correct) {
     return Response.json({ success: true, beat });
 
   } catch (err) {
+    console.error(err);
     return Response.json({ error: "Server error" }, { status: 500 });
   }
 }
