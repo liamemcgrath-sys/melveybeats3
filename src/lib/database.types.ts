@@ -40,18 +40,21 @@ export interface Database {
 
       free_beat: {
         Row: {
+          id: number;                     // ✅ REQUIRED
           title: string | null;
           audio_url: string | null;
           fullAudioPath: string | null;
           updated_at: string | null;
         };
         Insert: {
+          id?: number;                    // ✅ REQUIRED
           title?: string | null;
           audio_url?: string | null;
           fullAudioPath?: string | null;
           updated_at?: string | null;
         };
         Update: {
+          id?: number;                    // optional for updates
           title?: string | null;
           audio_url?: string | null;
           fullAudioPath?: string | null;
