@@ -32,12 +32,12 @@ export async function POST(req: Request) {
 
     // Password check
     const password = formData.get("password") as string | null;
+const correct = process.env.OWNER_PASSWORD;
 
-    if (password !== "ADMIN_BYPASS") {
-      if (!process.env.OWNER_PASSWORD || password !== process.env.OWNER_PASSWORD) {
-        return Response.json({ error: "Incorrect owner password" }, { status: 403 });
-      }
-    }
+// Allow bypass for internal admin tools
+if (password !== "ADMIN_BYPASS" && password !== correct) {
+  return Response.json({ error: "Incorrect owner password" }, { status: 403 });
+}
 
     // Expect two files
     const full = formData.get("full") as File | null;

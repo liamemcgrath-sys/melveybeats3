@@ -32,15 +32,15 @@ async function removeBeat(req: Request) {
     }
 
     //
-    // 2. Admin bypass or owner password
+    // 2. Password check (updated + simplified)
     //
-    if (password !== "ADMIN_BYPASS") {
-      if (!process.env.OWNER_PASSWORD || password !== process.env.OWNER_PASSWORD) {
-        return NextResponse.json(
-          { success: false, error: "Unauthorized" },
-          { status: 403 }
-        );
-      }
+    const correct = process.env.OWNER_PASSWORD;
+
+    if (password !== "ADMIN_BYPASS" && password !== correct) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 403 }
+      );
     }
 
     //
