@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
+import BeatCard from "@/components/BeatCard";
 
 export default function BeatsPage() {
   const supabase = createClient(
@@ -164,27 +165,16 @@ export default function BeatsPage() {
         </div>
       )}
 
-      {/* Beat List */}
+      {/* ⭐ Beat List — FIXED */}
       <div className="space-y-6">
-        {beats.map((beat) => (
-          <div
+        {beats.map((beat, index) => (
+          <BeatCard
             key={beat.id}
-            className="border p-4 rounded-lg shadow flex justify-between items-center"
-          >
-            <div>
-              <h2 className="text-xl font-bold">{beat.title}</h2>
-              <p className="text-slate-600">${beat.price.toFixed(2)}</p>
-            </div>
-
-            {isAdmin && (
-              <button
-                onClick={() => setDeleteBeatId(beat.id)}
-                className="px-4 py-2 bg-red-600 text-white rounded"
-              >
-                Delete Beat
-              </button>
-            )}
-          </div>
+            beat={beat}
+            index={index}
+            isAdmin={isAdmin}
+            onRemove={() => setDeleteBeatId(beat.id)}
+          />
         ))}
       </div>
 
