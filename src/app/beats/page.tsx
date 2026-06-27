@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import BeatCard from "@/components/BeatCard";
+import PreviewPlayer from "@/components/PreviewPlayer";
 
 export default function BeatsPage() {
   const supabase = createClient(
@@ -11,6 +12,8 @@ export default function BeatsPage() {
   );
 
   const [beats, setBeats] = useState<any[]>([]);
+  const [freeBeat, setFreeBeat] = useState<any | null>(null);
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
 
@@ -25,25 +28,32 @@ export default function BeatsPage() {
 
   // Free Beat Modal
   const [showFreeBeat, setShowFreeBeat] = useState(false);
-  const [freePreview, setFreePreview] = useState<File | null>(null);
   const [freeFull, setFreeFull] = useState<File | null>(null);
   const [freeTitle, setFreeTitle] = useState("");
 
-  // Load beats
+  // Load beats + free beat
   async function loadBeats() {
-    const { data, error } = await supabase
+    const { data: beatsData } = await supabase
       .from("beats")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (!error) setBeats(data || []);
+    setBeats(beatsData || []);
+
+    const { data: freeData } = await supabase
+      .from("free_beat")
+      .select("*")
+      .eq("id", 1)
+      .single();
+
+    setFreeBeat(freeData || null);
   }
 
   useEffect(() => {
     loadBeats();
   }, []);
 
-  // ⭐ REAL ADMIN LOGIN
+  // Admin Login
   function loginAdmin() {
     const correct = process.env.NEXT_PUBLIC_OWNER_PASSWORD;
 
@@ -60,7 +70,7 @@ export default function BeatsPage() {
     setIsAdmin(true);
   }
 
-  // ⭐ Upload Beat (ONE FILE ONLY)
+  // Upload Beat (ONE FILE)
   async function uploadBeat() {
     if (!uploadFull) {
       alert("Missing audio file");
@@ -103,14 +113,17 @@ export default function BeatsPage() {
     loadBeats();
   }
 
-  // Upload Free Beat (still uses 2 files)
+  // Upload Free Beat (ONE FILE)
   async function uploadFreeBeat() {
+    if (!freeFull) {
+      alert("Missing audio file");
+      return;
+    }
+
     const form = new FormData();
     form.append("password", adminPassword);
     form.append("title", freeTitle);
-
-    if (freePreview) form.append("preview", freePreview);
-    if (freeFull) form.append("full", freeFull);
+    form.append("full", freeFull);
 
     const res = await fetch("/api/set-free-beat", {
       method: "POST",
@@ -121,9 +134,10 @@ export default function BeatsPage() {
     alert(data.error || "Free Beat of the Week updated!");
 
     setShowFreeBeat(false);
-    setFreePreview(null);
     setFreeFull(null);
     setFreeTitle("");
+
+    loadBeats();
   }
 
   return (
@@ -177,6 +191,27 @@ export default function BeatsPage() {
         </div>
       )}
 
+      {/* ⭐ FREE BEAT OF THE WEEK */}
+      {freeBeat && (
+        <div className="mb-12 p-6 rounded-xl bg-blue-50 border border-blue-200 shadow">
+          <h2 className="text-2xl font-bold text-blue-700 mb-2">
+            Free Beat of the Week
+          </h2>
+
+          <p className="text-lg font-semibold mb-3">{freeBeat.title}</p>
+
+          <PreviewPlayer src={freeBeat.audio_url} />
+
+          <a
+            href={freeBeat.audio_url}
+            download
+            className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Download Full Beat (Free)
+          </a>
+        </div>
+      )}
+
       {/* ⭐ Beat List */}
       <div className="mt-12 space-y-6">
         {beats.map((beat, index) => (
@@ -212,7 +247,6 @@ export default function BeatsPage() {
               onChange={(e) => setUploadPrice(Number(e.target.value))}
             />
 
-            {/* ONE FILE INPUT */}
             <input
               type="file"
               accept="audio/*"
@@ -268,14 +302,7 @@ export default function BeatsPage() {
 
             <input
               type="file"
-              accept="audio/mp3"
-              className="w-full p-2 border rounded mb-3"
-              onChange={(e) => setFreePreview(e.target.files?.[0] || null)}
-            />
-
-            <input
-              type="file"
-              accept="audio/mp3"
+              accept="audio/*"
               className="w-full p-2 border rounded mb-3"
               onChange={(e) => setFreeFull(e.target.files?.[0] || null)}
             />
