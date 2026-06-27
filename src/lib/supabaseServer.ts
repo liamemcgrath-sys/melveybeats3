@@ -1,9 +1,9 @@
 "use server";
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
 
-let supabaseAdmin: ReturnType<typeof createClient<Database>> | null = null;
+let supabaseAdmin: SupabaseClient<Database> | null = null;
 
 export function getSupabaseAdmin() {
   if (supabaseAdmin) return supabaseAdmin;
