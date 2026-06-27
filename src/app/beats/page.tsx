@@ -41,7 +41,7 @@ export default function BeatsPage() {
 
     setBeats(beatsData || []);
 
-    // ⭐ NEWEST free beat
+    // Free beat (latest)
     const { data: freeData } = await supabase
       .from("free_beat")
       .select("*")
@@ -145,6 +145,30 @@ export default function BeatsPage() {
 
   return (
     <main className="max-w-4xl mx-auto px-6 py-20">
+
+      {/* ⭐ FREE BEAT OF THE WEEK — FEATURED AT TOP */}
+      {freeBeat && (
+        <div className="mb-16 p-6 rounded-xl bg-blue-50 border border-blue-200 shadow">
+          <h2 className="text-3xl font-black text-blue-700 mb-2">
+            Free Beat of the Week
+          </h2>
+
+          <p className="text-lg font-semibold mb-3">{freeBeat.title}</p>
+
+          {/* FIXED PROP */}
+          <PreviewPlayer url={freeBeat.audio_url} />
+
+          <a
+            href={freeBeat.audio_url}
+            download
+            className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Download Full Beat (Free)
+          </a>
+        </div>
+      )}
+
+      {/* ⭐ Beat Previews Heading */}
       <h1 className="text-4xl font-black text-blue-600 text-center mb-10">
         Beat Previews
       </h1>
@@ -191,27 +215,6 @@ export default function BeatsPage() {
           >
             Exit Admin
           </button>
-        </div>
-      )}
-
-      {/* ⭐ FREE BEAT OF THE WEEK */}
-      {freeBeat && (
-        <div className="mb-12 p-6 rounded-xl bg-blue-50 border border-blue-200 shadow">
-          <h2 className="text-2xl font-bold text-blue-700 mb-2">
-            Free Beat of the Week
-          </h2>
-
-          <p className="text-lg font-semibold mb-3">{freeBeat.title}</p>
-
-          <PreviewPlayer src={freeBeat.audio_url} />
-
-          <a
-            href={freeBeat.audio_url}
-            download
-            className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded"
-          >
-            Download Full Beat (Free)
-          </a>
         </div>
       )}
 
