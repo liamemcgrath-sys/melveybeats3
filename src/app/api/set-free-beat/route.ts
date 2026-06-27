@@ -52,10 +52,10 @@ export async function POST(req: Request) {
     const { error: dbError } = await supabase
       .from("free_beat")
       .upsert({
-        id: 1,
         title,
         audio_url,
         fullAudioPath: fileName,
+        updated_at: new Date().toISOString(),
       });
 
     if (dbError) {
