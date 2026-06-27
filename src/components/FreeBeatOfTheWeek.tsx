@@ -11,7 +11,7 @@ export default function FreeBeatOfTheWeek() {
       </p>
 
       <div className="bg-white text-black p-6 rounded-lg shadow-md">
-        <h3 className="text-2xl font-semibold mb-2">🔥 Beat Title Here</h3>
+        <h3 className="text-2xl font-semibold mb-2">Beat Title Here</h3>
         <audio controls className="w-full mb-4">
           <source src="/free-beat-preview.mp3" type="audio/mpeg" />
         </audio>
