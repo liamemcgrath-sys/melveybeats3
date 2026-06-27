@@ -18,7 +18,6 @@ export default function BeatsPage() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadTitle, setUploadTitle] = useState("");
   const [uploadPrice, setUploadPrice] = useState<number | "">("");
-  const [uploadPreview, setUploadPreview] = useState<File | null>(null);
   const [uploadFull, setUploadFull] = useState<File | null>(null);
 
   // Delete Beat Modal
@@ -44,7 +43,7 @@ export default function BeatsPage() {
     loadBeats();
   }, []);
 
-  // ⭐ REAL ADMIN LOGIN — ONLY correct password works
+  // ⭐ REAL ADMIN LOGIN
   function loginAdmin() {
     const correct = process.env.NEXT_PUBLIC_OWNER_PASSWORD;
 
@@ -61,15 +60,18 @@ export default function BeatsPage() {
     setIsAdmin(true);
   }
 
-  // Upload Beat
+  // ⭐ Upload Beat (ONE FILE ONLY)
   async function uploadBeat() {
+    if (!uploadFull) {
+      alert("Missing audio file");
+      return;
+    }
+
     const form = new FormData();
     form.append("title", uploadTitle);
     form.append("price", uploadPrice.toString());
     form.append("password", adminPassword);
-
-    if (uploadPreview) form.append("preview", uploadPreview);
-    if (uploadFull) form.append("full", uploadFull);
+    form.append("full", uploadFull);
 
     const res = await fetch("/api/add-beat", {
       method: "POST",
@@ -82,7 +84,6 @@ export default function BeatsPage() {
     setShowUploadModal(false);
     setUploadTitle("");
     setUploadPrice("");
-    setUploadPreview(null);
     setUploadFull(null);
 
     loadBeats();
@@ -102,7 +103,7 @@ export default function BeatsPage() {
     loadBeats();
   }
 
-  // Upload Free Beat
+  // Upload Free Beat (still uses 2 files)
   async function uploadFreeBeat() {
     const form = new FormData();
     form.append("password", adminPassword);
@@ -176,7 +177,7 @@ export default function BeatsPage() {
         </div>
       )}
 
-      {/* ⭐ Beat List — BeatCards restored */}
+      {/* ⭐ Beat List */}
       <div className="mt-12 space-y-6">
         {beats.map((beat, index) => (
           <BeatCard
@@ -211,13 +212,7 @@ export default function BeatsPage() {
               onChange={(e) => setUploadPrice(Number(e.target.value))}
             />
 
-            <input
-              type="file"
-              accept="audio/*"
-              className="w-full p-2 border rounded mb-3"
-              onChange={(e) => setUploadPreview(e.target.files?.[0] || null)}
-            />
-
+            {/* ONE FILE INPUT */}
             <input
               type="file"
               accept="audio/*"

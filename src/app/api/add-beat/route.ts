@@ -31,12 +31,11 @@ export async function POST(req: Request) {
       return Response.json({ error: "Incorrect owner password" }, { status: 403 });
     }
 
-    // Expect TWO files (client generates preview)
+    // ONE FILE ONLY
     const full = formData.get("full") as File | null;
-    const preview = formData.get("preview") as File | null;
 
-    if (!full || !preview) {
-      return Response.json({ error: "Missing full or preview file" }, { status: 400 });
+    if (!full) {
+      return Response.json({ error: "Missing audio file" }, { status: 400 });
     }
 
     if (!isAllowedAudioFile(full)) {
@@ -48,9 +47,8 @@ export async function POST(req: Request) {
 
     const supabase = getSupabaseAdmin();
 
-    // Filenames
+    // Filename
     const fullName = `full-${Date.now()}-${full.name.replace(/\s/g, "_")}`;
-    const previewName = `preview-${Date.now()}-${preview.name.replace(/\s/g, "_")}`;
 
     // Upload full beat
     const { error: fullError } = await supabase.storage
@@ -61,19 +59,10 @@ export async function POST(req: Request) {
       return Response.json({ error: fullError.message }, { status: 500 });
     }
 
-    // Upload preview
-    const { error: previewError } = await supabase.storage
-      .from("beats")
-      .upload(previewName, preview);
-
-    if (previewError) {
-      return Response.json({ error: previewError.message }, { status: 500 });
-    }
-
-    // Public preview URL
+    // Public URL (used for preview)
     const { data: previewData } = supabase.storage
       .from("beats")
-      .getPublicUrl(previewName);
+      .getPublicUrl(fullName);
 
     const audio_url = previewData.publicUrl;
 
@@ -83,8 +72,8 @@ export async function POST(req: Request) {
       .insert({
         title,
         price,
-        audio_url,
-        fullAudioPath: fullName,
+        audio_url,       // preview uses first 30 seconds
+        fullAudioPath: fullName, // full beat for purchase
       })
       .select()
       .single();
