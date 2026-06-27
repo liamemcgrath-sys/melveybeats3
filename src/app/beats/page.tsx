@@ -177,7 +177,7 @@ export default function BeatsPage() {
       )}
 
       {/* ⭐ Beat List — BeatCards restored */}
-      <div className="space-y-6">
+      <div className="mt-12 space-y-6">
         {beats.map((beat, index) => (
           <BeatCard
             key={beat.id}
