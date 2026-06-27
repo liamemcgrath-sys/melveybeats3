@@ -44,9 +44,20 @@ export default function BeatsPage() {
     loadBeats();
   }, []);
 
-  // Admin login
+  // ⭐ REAL ADMIN LOGIN — ONLY correct password works
   function loginAdmin() {
-    if (adminPassword.trim().length === 0) return;
+    const correct = process.env.NEXT_PUBLIC_OWNER_PASSWORD;
+
+    if (!adminPassword.trim()) {
+      alert("Enter password");
+      return;
+    }
+
+    if (adminPassword !== correct) {
+      alert("Incorrect password");
+      return;
+    }
+
     setIsAdmin(true);
   }
 
@@ -165,7 +176,7 @@ export default function BeatsPage() {
         </div>
       )}
 
-      {/* ⭐ Beat List — FIXED */}
+      {/* ⭐ Beat List — BeatCards restored */}
       <div className="space-y-6">
         {beats.map((beat, index) => (
           <BeatCard
