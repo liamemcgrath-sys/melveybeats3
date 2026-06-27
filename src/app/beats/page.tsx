@@ -16,37 +16,40 @@ export default function BeatsPage() {
   // Upload Beat Modal
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadTitle, setUploadTitle] = useState("");
-  const [uploadPrice, setUploadPrice] = useState(0);
+  const [uploadPrice, setUploadPrice] = useState<number | "">("");
   const [uploadPreview, setUploadPreview] = useState<File | null>(null);
   const [uploadFull, setUploadFull] = useState<File | null>(null);
 
   // Delete Beat Modal
   const [deleteBeatId, setDeleteBeatId] = useState<number | null>(null);
 
-  // ⭐ Free Beat Modal
+  // Free Beat Modal
   const [showFreeBeat, setShowFreeBeat] = useState(false);
   const [freePreview, setFreePreview] = useState<File | null>(null);
   const [freeFull, setFreeFull] = useState<File | null>(null);
   const [freeTitle, setFreeTitle] = useState("");
 
+  // Load beats
   async function loadBeats() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("beats")
       .select("*")
       .order("created_at", { ascending: false });
 
-    setBeats(data || []);
+    if (!error) setBeats(data || []);
   }
 
   useEffect(() => {
     loadBeats();
   }, []);
 
-  async function loginAdmin() {
-    if (!adminPassword) return;
+  // Admin login
+  function loginAdmin() {
+    if (adminPassword.trim().length === 0) return;
     setIsAdmin(true);
   }
 
+  // Upload Beat
   async function uploadBeat() {
     const form = new FormData();
     form.append("title", uploadTitle);
@@ -63,10 +66,17 @@ export default function BeatsPage() {
 
     const data = await res.json();
     alert(data.error || "Beat uploaded!");
+
     setShowUploadModal(false);
+    setUploadTitle("");
+    setUploadPrice("");
+    setUploadPreview(null);
+    setUploadFull(null);
+
     loadBeats();
   }
 
+  // Delete Beat
   async function deleteBeat(id: number) {
     const res = await fetch("/api/delete-beat", {
       method: "POST",
@@ -75,11 +85,12 @@ export default function BeatsPage() {
 
     const data = await res.json();
     alert(data.error || "Beat deleted!");
+
     setDeleteBeatId(null);
     loadBeats();
   }
 
-  // ⭐ Upload Free Beat of the Week
+  // Upload Free Beat
   async function uploadFreeBeat() {
     const form = new FormData();
     form.append("password", adminPassword);
@@ -95,7 +106,11 @@ export default function BeatsPage() {
 
     const data = await res.json();
     alert(data.error || "Free Beat of the Week updated!");
+
     setShowFreeBeat(false);
+    setFreePreview(null);
+    setFreeFull(null);
+    setFreeTitle("");
   }
 
   return (
@@ -175,7 +190,7 @@ export default function BeatsPage() {
 
       {/* Upload Beat Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+        <Modal>
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h2 className="text-2xl font-bold mb-4">Upload Beat</h2>
 
@@ -223,12 +238,12 @@ export default function BeatsPage() {
               Close
             </button>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Delete Beat Modal */}
       {deleteBeatId !== null && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+        <Modal>
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h2 className="text-2xl font-bold mb-4">Delete Beat?</h2>
 
@@ -246,12 +261,12 @@ export default function BeatsPage() {
               Cancel
             </button>
           </div>
-        </div>
+        </Modal>
       )}
 
-      {/* ⭐ Free Beat Modal */}
+      {/* Free Beat Modal */}
       {showFreeBeat && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+        <Modal>
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h2 className="text-2xl font-bold mb-4">Set Free Beat of the Week</h2>
 
@@ -291,8 +306,16 @@ export default function BeatsPage() {
               Close
             </button>
           </div>
-        </div>
+        </Modal>
       )}
     </main>
+  );
+}
+
+function Modal({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+      {children}
+    </div>
   );
 }
