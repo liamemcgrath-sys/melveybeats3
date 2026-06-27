@@ -7,8 +7,8 @@ import PreviewPlayer from "@/components/PreviewPlayer";
 
 export default function BeatsPage() {
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
   );
 
   const [beats, setBeats] = useState<any[]>([]);
@@ -33,6 +33,7 @@ export default function BeatsPage() {
 
   // Load beats + free beat
   async function loadBeats() {
+    // Paid beats
     const { data: beatsData } = await supabase
       .from("beats")
       .select("*")
@@ -40,9 +41,12 @@ export default function BeatsPage() {
 
     setBeats(beatsData || []);
 
+    // ⭐ NEWEST free beat
     const { data: freeData } = await supabase
       .from("free_beat")
       .select("*")
+      .order("updated_at", { ascending: false })
+      .limit(1)
       .single();
 
     setFreeBeat(freeData || null);
