@@ -43,7 +43,6 @@ export default function BeatsPage() {
     const { data: freeData } = await supabase
       .from("free_beat")
       .select("*")
-      .eq("id", 1)
       .single();
 
     setFreeBeat(freeData || null);
