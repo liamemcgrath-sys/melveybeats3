@@ -7,7 +7,7 @@ export function toDisplayBeat(
   const price = Number(beat.price ?? 0);
 
   return {
-    id: beat.id,
+    id: String(beat.id),
     title: beat.title?.trim() || "Untitled",
     price: Number.isFinite(price) ? price : 0,
     audio_url: beat.audio_url || "",
