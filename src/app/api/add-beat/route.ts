@@ -5,7 +5,6 @@ export const maxBodySize = "200mb";
 export const maxDuration = 300;
 
 import { getSupabaseAdmin } from "@/lib/supabaseServer";
-import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 
 const allowedMimeTypes = new Set([
   "audio/mpeg",
@@ -32,11 +31,12 @@ export async function POST(req: Request) {
       return Response.json({ error: "Incorrect owner password" }, { status: 403 });
     }
 
-    // Expect ONE file now
+    // Expect TWO files (client generates preview)
     const full = formData.get("full") as File | null;
+    const preview = formData.get("preview") as File | null;
 
-    if (!full) {
-      return Response.json({ error: "Missing audio file" }, { status: 400 });
+    if (!full || !preview) {
+      return Response.json({ error: "Missing full or preview file" }, { status: 400 });
     }
 
     if (!isAllowedAudioFile(full)) {
@@ -50,29 +50,9 @@ export async function POST(req: Request) {
 
     // Filenames
     const fullName = `full-${Date.now()}-${full.name.replace(/\s/g, "_")}`;
-    const previewName = `preview-${Date.now()}.mp3`;
+    const previewName = `preview-${Date.now()}-${preview.name.replace(/\s/g, "_")}`;
 
-    //
-    // ⭐ Generate preview using FFmpeg (30 seconds)
-    //
-    const ffmpeg = createFFmpeg({ log: false });
-    await ffmpeg.load();
-
-    ffmpeg.FS("writeFile", "input.mp3", await fetchFile(full));
-
-    await ffmpeg.run(
-      "-i", "input.mp3",
-      "-t", "30",
-      "-acodec", "libmp3lame",
-      "-b:a", "128k",
-      "preview.mp3"
-    );
-
-    const previewData = ffmpeg.FS("readFile", "preview.mp3");
-
-    //
     // Upload full beat
-    //
     const { error: fullError } = await supabase.storage
       .from("beats")
       .upload(fullName, full);
@@ -81,27 +61,23 @@ export async function POST(req: Request) {
       return Response.json({ error: fullError.message }, { status: 500 });
     }
 
-    //
     // Upload preview
-    //
     const { error: previewError } = await supabase.storage
       .from("beats")
-      .upload(previewName, previewData);
+      .upload(previewName, preview);
 
     if (previewError) {
       return Response.json({ error: previewError.message }, { status: 500 });
     }
 
     // Public preview URL
-    const { data: previewUrlData } = supabase.storage
+    const { data: previewData } = supabase.storage
       .from("beats")
       .getPublicUrl(previewName);
 
-    const audio_url = previewUrlData.publicUrl;
+    const audio_url = previewData.publicUrl;
 
-    //
     // Insert DB row
-    //
     const { data: beat, error: dbError } = await supabase
       .from("beats")
       .insert({
