@@ -19,52 +19,53 @@ export async function POST(req: Request) {
       }
     }
 
-    // Files
-    const preview = formData.get("preview") as File | null;
+    // ONE FILE ONLY
     const full = formData.get("full") as File | null;
     const title = (formData.get("title") as string | null) || "Free Beat";
 
-    if (!preview || !full) {
-      return Response.json({ error: "Missing preview or full file" }, { status: 400 });
+    if (!full) {
+      return Response.json({ error: "Missing audio file" }, { status: 400 });
     }
 
     const supabase = getSupabaseAdmin();
 
-    // Upload preview.mp3
-    const { error: previewError } = await supabase.storage
-      .from("free-beat")
-      .upload("preview.mp3", preview, { upsert: true });
+    // Generate unique filename
+    const fileName = `free-${Date.now()}-${full.name.replace(/\s/g, "_")}`;
 
-    if (previewError) {
-      return Response.json({ error: previewError.message }, { status: 500 });
-    }
-
-    // Upload full.mp3
+    // Upload full beat
     const { error: fullError } = await supabase.storage
       .from("free-beat")
-      .upload("full.mp3", full, { upsert: true });
+      .upload(fileName, full, { upsert: true });
 
     if (fullError) {
       return Response.json({ error: fullError.message }, { status: 500 });
     }
 
-    // Upload metadata
-    const meta = { title };
-    const { error: metaError } = await supabase.storage
+    // Get public URL
+    const { data: urlData } = supabase.storage
       .from("free-beat")
-      .upload(
-        "meta.json",
-        new Blob([JSON.stringify(meta)], { type: "application/json" }),
-        { upsert: true }
-      );
+      .getPublicUrl(fileName);
 
-    if (metaError) {
-      return Response.json({ error: metaError.message }, { status: 500 });
+    const audio_url = urlData.publicUrl;
+
+    // Store in DB
+    const { error: dbError } = await supabase
+      .from("free_beat")
+      .upsert({
+        id: 1,
+        title,
+        audio_url,
+        fullAudioPath: fileName,
+      });
+
+    if (dbError) {
+      return Response.json({ error: dbError.message }, { status: 500 });
     }
 
     return Response.json({ success: true });
 
   } catch (err) {
+    console.error(err);
     return Response.json({ error: "Server error" }, { status: 500 });
   }
 }
