@@ -1,55 +1,298 @@
-import { toDisplayBeat } from "@/lib/beats";
-import type { Database } from "@/lib/database";
+"use client";
+
+import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-export const dynamic = "force-dynamic";
+export default function BeatsPage() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
-import HomeClient from "@/components/HomeClient";
+  const [beats, setBeats] = useState<any[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
 
+  // Upload Beat Modal
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadTitle, setUploadTitle] = useState("");
+  const [uploadPrice, setUploadPrice] = useState(0);
+  const [uploadPreview, setUploadPreview] = useState<File | null>(null);
+  const [uploadFull, setUploadFull] = useState<File | null>(null);
 
-export default async function Home() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Delete Beat Modal
+  const [deleteBeatId, setDeleteBeatId] = useState<number | null>(null);
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return (
-      <main className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-40">
-        <p className="mt-2 text-slate-500">No beats available.</p>
-      </main>
-    );
+  // ⭐ Free Beat Modal
+  const [showFreeBeat, setShowFreeBeat] = useState(false);
+  const [freePreview, setFreePreview] = useState<File | null>(null);
+  const [freeFull, setFreeFull] = useState<File | null>(null);
+  const [freeTitle, setFreeTitle] = useState("");
+
+  async function loadBeats() {
+    const { data } = await supabase
+      .from("beats")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    setBeats(data || []);
   }
 
-  const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+  useEffect(() => {
+    loadBeats();
+  }, []);
 
-  const { data: beats, error } = await supabase
-    .from("beats")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    return (
-      <main className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-40">
-        <h1 className="text-4xl font-black text-blue-600 text-center">
-          Melvey Beats
-        </h1>
-        <p className="mt-4 text-red-600 font-semibold">
-          Error loading beats: {error.message}
-        </p>
-      </main>
-    );
+  async function loginAdmin() {
+    if (!adminPassword) return;
+    setIsAdmin(true);
   }
 
-  const displayBeats = (beats ?? []).map(toDisplayBeat);
+  async function uploadBeat() {
+    const form = new FormData();
+    form.append("title", uploadTitle);
+    form.append("price", uploadPrice.toString());
+    form.append("password", adminPassword);
+
+    if (uploadPreview) form.append("preview", uploadPreview);
+    if (uploadFull) form.append("full", uploadFull);
+
+    const res = await fetch("/api/add-beat", {
+      method: "POST",
+      body: form,
+    });
+
+    const data = await res.json();
+    alert(data.error || "Beat uploaded!");
+    setShowUploadModal(false);
+    loadBeats();
+  }
+
+  async function deleteBeat(id: number) {
+    const res = await fetch("/api/delete-beat", {
+      method: "POST",
+      body: JSON.stringify({ id, password: adminPassword }),
+    });
+
+    const data = await res.json();
+    alert(data.error || "Beat deleted!");
+    setDeleteBeatId(null);
+    loadBeats();
+  }
+
+  // ⭐ Upload Free Beat of the Week
+  async function uploadFreeBeat() {
+    const form = new FormData();
+    form.append("password", adminPassword);
+    form.append("title", freeTitle);
+
+    if (freePreview) form.append("preview", freePreview);
+    if (freeFull) form.append("full", freeFull);
+
+    const res = await fetch("/api/set-free-beat", {
+      method: "POST",
+      body: form,
+    });
+
+    const data = await res.json();
+    alert(data.error || "Free Beat of the Week updated!");
+    setShowFreeBeat(false);
+  }
 
   return (
-    <main className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-40">
-      <section className="text-center mb-16">
-        <h1 className="text-5xl font-black tracking-tight text-blue-600 text-center">
-          Melvey Beats
-        </h1>
-      </section>
+    <main className="max-w-4xl mx-auto px-6 py-20">
+      <h1 className="text-4xl font-black text-blue-600 text-center mb-10">
+        Beat Previews
+      </h1>
 
-      <HomeClient initialBeats={displayBeats} />
+      {/* Admin Login */}
+      {!isAdmin && (
+        <div className="text-center mb-10">
+          <input
+            type="password"
+            placeholder="Owner Password"
+            className="border p-2 rounded mr-2"
+            value={adminPassword}
+            onChange={(e) => setAdminPassword(e.target.value)}
+          />
+          <button
+            onClick={loginAdmin}
+            className="px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Admin Login
+          </button>
+        </div>
+      )}
+
+      {/* Admin Controls */}
+      {isAdmin && (
+        <div className="flex gap-4 mb-10 justify-center">
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="px-4 py-2 bg-green-600 text-white rounded"
+          >
+            Upload Beat
+          </button>
+
+          <button
+            onClick={() => setShowFreeBeat(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Set Free Beat of the Week
+          </button>
+
+          <button
+            onClick={() => setIsAdmin(false)}
+            className="px-4 py-2 bg-red-600 text-white rounded"
+          >
+            Exit Admin
+          </button>
+        </div>
+      )}
+
+      {/* Beat List */}
+      <div className="space-y-6">
+        {beats.map((beat) => (
+          <div
+            key={beat.id}
+            className="border p-4 rounded-lg shadow flex justify-between items-center"
+          >
+            <div>
+              <h2 className="text-xl font-bold">{beat.title}</h2>
+              <p className="text-slate-600">${beat.price.toFixed(2)}</p>
+            </div>
+
+            {isAdmin && (
+              <button
+                onClick={() => setDeleteBeatId(beat.id)}
+                className="px-4 py-2 bg-red-600 text-white rounded"
+              >
+                Delete Beat
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Upload Beat Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-4">Upload Beat</h2>
+
+            <input
+              type="text"
+              placeholder="Title"
+              className="w-full p-2 border rounded mb-3"
+              value={uploadTitle}
+              onChange={(e) => setUploadTitle(e.target.value)}
+            />
+
+            <input
+              type="number"
+              placeholder="Price"
+              className="w-full p-2 border rounded mb-3"
+              value={uploadPrice}
+              onChange={(e) => setUploadPrice(Number(e.target.value))}
+            />
+
+            <input
+              type="file"
+              accept="audio/*"
+              className="w-full p-2 border rounded mb-3"
+              onChange={(e) => setUploadPreview(e.target.files?.[0] || null)}
+            />
+
+            <input
+              type="file"
+              accept="audio/*"
+              className="w-full p-2 border rounded mb-3"
+              onChange={(e) => setUploadFull(e.target.files?.[0] || null)}
+            />
+
+            <button
+              onClick={uploadBeat}
+              className="w-full bg-green-600 text-white py-2 rounded mb-3"
+            >
+              Upload
+            </button>
+
+            <button
+              onClick={() => setShowUploadModal(false)}
+              className="w-full bg-gray-300 py-2 rounded"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Beat Modal */}
+      {deleteBeatId !== null && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-4">Delete Beat?</h2>
+
+            <button
+              onClick={() => deleteBeat(deleteBeatId)}
+              className="w-full bg-red-600 text-white py-2 rounded mb-3"
+            >
+              Delete
+            </button>
+
+            <button
+              onClick={() => setDeleteBeatId(null)}
+              className="w-full bg-gray-300 py-2 rounded"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ⭐ Free Beat Modal */}
+      {showFreeBeat && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-4">Set Free Beat of the Week</h2>
+
+            <input
+              type="file"
+              accept="audio/mp3"
+              className="w-full p-2 border rounded mb-3"
+              onChange={(e) => setFreePreview(e.target.files?.[0] || null)}
+            />
+
+            <input
+              type="file"
+              accept="audio/mp3"
+              className="w-full p-2 border rounded mb-3"
+              onChange={(e) => setFreeFull(e.target.files?.[0] || null)}
+            />
+
+            <input
+              type="text"
+              placeholder="Beat Title"
+              className="w-full p-2 border rounded mb-3"
+              value={freeTitle}
+              onChange={(e) => setFreeTitle(e.target.value)}
+            />
+
+            <button
+              onClick={uploadFreeBeat}
+              className="w-full bg-blue-600 text-white py-2 rounded mb-3"
+            >
+              Upload Free Beat
+            </button>
+
+            <button
+              onClick={() => setShowFreeBeat(false)}
+              className="w-full bg-gray-300 py-2 rounded"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
