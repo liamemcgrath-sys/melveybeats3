@@ -1,6 +1,7 @@
 "use server";
 
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
 
 let supabaseAdmin: SupabaseClient<Database> | null = null;
