@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase"
 import type { Database } from "./database.types";
 
 let supabaseAdmin: ReturnType<typeof createClient<Database>> | null = null;
