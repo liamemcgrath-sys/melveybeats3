@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
     // Upload full beat
     const { error: fullError } = await supabase.storage
-      .from("free-beat") // <-- make sure this matches your bucket name
+      .from("free_beat") // <-- make sure this matches your bucket name
       .upload(fileName, full, { upsert: true });
 
     if (fullError) {
