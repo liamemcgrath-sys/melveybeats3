@@ -32,7 +32,7 @@ async function removeBeat(req: Request) {
     }
 
     //
-    // 2. Password check (updated + simplified)
+    // 2. Password check
     //
     const correct = process.env.OWNER_PASSWORD;
 
@@ -54,10 +54,10 @@ async function removeBeat(req: Request) {
     }
 
     //
-    // 4. Delete from Supabase
+    // 4. Delete from Supabase (UUID FIX)
     //
     const supabase = getSupabaseAdmin();
-    const { error } = await supabase.from("beats").delete().eq("id", Number(id));
+    const { error } = await supabase.from("beats").delete().eq("id", id);
 
     if (error) {
       console.error("Supabase delete error:", error);
