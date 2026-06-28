@@ -103,7 +103,7 @@ export default function BeatsPage() {
   }
 
   // Delete Beat
-  async function deleteBeat(id: number) {
+  async function deleteBeat(id: string) {
     const res = await fetch("/api/delete-beat", {
       method: "POST",
       body: JSON.stringify({ id, password: adminPassword }),
