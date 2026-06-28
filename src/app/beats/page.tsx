@@ -156,7 +156,7 @@ export default function BeatsPage() {
           <p className="text-lg font-semibold mb-3">{freeBeat.title}</p>
 
           {/* FIXED PROP */}
-          <PreviewPlayer url={freeBeat.audio_url} />
+          <PreviewPlayer src={freeBeat.audio_url} />
 
           <a
             href={freeBeat.audio_url}
