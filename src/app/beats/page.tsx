@@ -24,7 +24,7 @@ export default function BeatsPage() {
   const [uploadFull, setUploadFull] = useState<File | null>(null);
 
   // Delete Beat Modal
-  const [deleteBeatId, setDeleteBeatId] = useState<number | null>(null);
+  const [deleteBeatId, setDeleteBeatId] = useState<string | null>(null);
 
   // Free Beat Modal
   const [showFreeBeat, setShowFreeBeat] = useState(false);
