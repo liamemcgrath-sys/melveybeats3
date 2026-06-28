@@ -11,7 +11,7 @@ export interface Database {
     Tables: {
       beats: {
         Row: {
-          id: number;
+          id: string;
           title: string | null;
           price: number | null;
           audio_url: string | null;
@@ -20,7 +20,7 @@ export interface Database {
           created_at: string | null;
         };
         Insert: {
-          id?: number;
+          id?: string;
           title?: string | null;
           price?: number | null;
           audio_url?: string | null;
@@ -40,21 +40,21 @@ export interface Database {
 
       free_beat: {
         Row: {
-          id: number;                     // ✅ REQUIRED
+          id: string;                     // ✅ REQUIRED
           title: string | null;
           audio_url: string | null;
           fullAudioPath: string | null;
           updated_at: string | null;
         };
         Insert: {
-          id?: number;                    // ✅ REQUIRED
+          id?: string;                    // ✅ REQUIRED
           title?: string | null;
           audio_url?: string | null;
           fullAudioPath?: string | null;
           updated_at?: string | null;
         };
         Update: {
-          id?: number;                    // optional for updates
+          id?: string;                    // optional for updates
           title?: string | null;
           audio_url?: string | null;
           fullAudioPath?: string | null;
