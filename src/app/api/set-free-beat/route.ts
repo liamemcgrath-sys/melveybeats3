@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
     // Upload full beat
     const { error: fullError } = await supabase.storage
-      .from("free-beat") // <-- make sure this matches your bucket name
+      .from("free-beat")
       .upload(fileName, full, { upsert: true });
 
     if (fullError) {
@@ -48,10 +48,11 @@ export async function POST(req: Request) {
 
     const audio_url = urlData.publicUrl;
 
-    // ⭐ ALWAYS overwrite row with id = 1
+    // ⭐ ALWAYS overwrite row with id = "1"
     const { error: dbError } = await supabase
       .from("free_beat")
       .upsert({
+        id: "1", // ← REQUIRED because id is a NOT NULL string
         title,
         audio_url,
         fullAudioPath: fileName,
