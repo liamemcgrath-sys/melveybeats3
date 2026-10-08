@@ -1,109 +1,26 @@
-import Stripe from "stripe";
-import { toDisplayBeat } from "@/lib/beats";
-import { getSupabaseAdmin } from "@/lib/supabaseServer";
-
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY?.trim();
-
-function isLikelyStripeSecret(value: string | undefined) {
-  return Boolean(
-    value &&
-      value !== "your_stripe_key" &&
-      value !== "" &&
-      /^(sk|rk)_(live|test)_[A-Za-z0-9]+/.test(value),
-  );
-}
-
-let stripe: Stripe | null = null;
-
-if (stripeSecretKey && isLikelyStripeSecret(stripeSecretKey)) {
-  try {
-    stripe = new Stripe(stripeSecretKey, {
-      apiVersion: "2026-05-27.dahlia",
-    });
-  } catch (error) {
-    console.error("Stripe initialization failed:", error);
-  }
-}
-
-function getBaseUrl(request: Request) {
-  const forwardedProto = request.headers.get("x-forwarded-proto");
-  const forwardedHost = request.headers.get("x-forwarded-host");
-  const host = request.headers.get("host");
-
-  if (forwardedProto && (forwardedHost || host)) {
-    return `${forwardedProto}://${forwardedHost || host}`;
-  }
-
-  if (process.env.NEXT_PUBLIC_URL) {
-    return process.env.NEXT_PUBLIC_URL;
-  }
-
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-
-  return "http://localhost:3000";
-}
-
-export async function POST(req: Request) {
-  const body = await req.json().catch(() => null);
-  const beatId = body?.beatId;
-  const baseUrl = getBaseUrl(req);
-
-  if (!beatId || typeof beatId !== "string") {
-    return Response.json({ error: "Missing beat id" }, { status: 400 });
-  }
-
-  const supabase = getSupabaseAdmin();
-  const { data: dbBeat, error } = await supabase
-    .from("beats")
-    .select("*")
-    .eq("id", beatId)
-    .single();
-
-  if (error || !dbBeat) {
-    return Response.json({ error: "Beat not found" }, { status: 404 });
-  }
-
-  // Convert DB row → DisplayBeat
-  const beat = toDisplayBeat(dbBeat);
-  const unitAmount = Math.max(100, Math.round(beat.price * 100));
-
-  if (!stripe) {
-    return Response.json(
-      {
-        mode: "demo",
-        url: `${baseUrl}/success?mode=demo`,
-        message:
-          "Stripe is not configured yet, so checkout used the local demo fallback.",
-      },
-      { status: 200 },
-    );
-  }
-
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
-    mode: "payment",
-    line_items: [
-      {
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: beat.title,
-          },
-          unit_amount: unitAmount,
-        },
-        quantity: 1,
-      },
-    ],
-    success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${baseUrl}/cancel`,
-    metadata: {
-      beatId: beat.id,
-      beatTitle: beat.title,
-      fullAudioPath: beat.fullAudioPath,
-    },
-  });
-
-  return Response.json({ url: session.url, sessionId: session.id });
+import { requireProfile } from "@/lib/account-store";
+import { database } from "@/lib/catalog-store";
+import { stripeClient,reconcileOrders } from "@/lib/payments";
+import { checkOrigin,siteOrigin,validateCheckout,readJson,json,errorResponse,CheckoutError } from "@/lib/checkout";
+import type { StoredOrder } from "@/lib/order-store";
+export const runtime="nodejs";
+export async function POST(request:Request){
+  try{
+    checkOrigin(request);const user=await requireProfile();const input=validateCheckout({...await readJson(request),email:user.email});
+    const stripe=stripeClient();await reconcileOrders();
+    const {data,error}=await database().rpc("melvey_reserve_order",{p_owner:user.id,p_email:user.email,p_key:input.idempotencyKey,p_items:input.items});
+    if(error)throw new CheckoutError("A beat in your cart is unavailable or reserved. Please update your cart.",409);
+    const order=data as StoredOrder;
+    if(order.status!=="pending")throw new CheckoutError("This checkout is complete or cancelled. Start a new checkout.",409);
+    if(order.stripe_session_id){const previous=await stripe.checkout.sessions.retrieve(order.stripe_session_id);if(previous.status==="open"&&previous.url)return json({url:previous.url});throw new CheckoutError("This checkout is no longer open. Please start again.",409);}
+    const base=siteOrigin(request);
+    const session=await stripe.checkout.sessions.create({mode:"payment",payment_method_types:["card"],customer_email:order.email,
+      line_items:order.items.map(item=>({quantity:1,price_data:{currency:"usd",unit_amount:item.price,product_data:{name:`${item.title} · ${item.license==='exclusive'?'Exclusive':'Standard'} license`}}})),
+      success_url:`${base}/success?session_id={CHECKOUT_SESSION_ID}`,cancel_url:`${base}/cancel?order=${order.id}`,
+      metadata:{melvey_order:order.id,melvey_owner:user.id,license_version:"melvey-v1"},expires_at:Math.floor(Date.parse(order.created_at)/1000)+3600,
+    },{idempotencyKey:`melvey-${order.id}`});
+    const {error:saveError}=await database().from("melvey_orders").update({stripe_session_id:session.id,mode:session.livemode?"live":"test"}).eq("id",order.id).eq("status","pending");
+    if(saveError)throw new CheckoutError("Could not save checkout. Retry with the same cart.",503);
+    return json({url:session.url,mode:session.livemode?"live":"test"});
+  }catch(error){return errorResponse(error);}
 }

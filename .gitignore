@@ -3,3 +3,10 @@ node_modules/
 
 # Next.js build output
 .next/
+
+# Local checks and environment files
+work/
+.env*
+!.env.example
+tsconfig.tsbuildinfo
+supabase/.temp/
