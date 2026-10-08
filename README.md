@@ -23,3 +23,9 @@ All catalog/admin/account tables use RLS and are unavailable directly to anonymo
 Copy `.env.example` to `.env.local` and configure development credentials. Never commit credentials. Run `npm ci`, `npm run dev`, and `npm test`. `npm test` covers browsing/cart/playback validation and real PostgreSQL functions in isolated PGlite, including archive integrity, exclusive conflicts, duplicate checkout/fulfillment, buyer ownership, and one-time admin enrollment. `npm run build` validates the Next.js 16.2.9 production build.
 
 A build and automated fixtures do not verify delivery of real signup emails or make a live payment. Those depend on existing Supabase/Stripe settings.
+
+## Confirmation email and automatic previews
+
+`supabase/templates/confirmation.html` is the approved signup email template (subject: Confirm your Melvey account). Apply it to the hosted Auth confirmation template. Its token-hash link works across browsers; the callback verifies the address, ends only the confirmation session, and shows Email verified with a fresh sign-in prompt. Existing PKCE links remain supported.
+
+Studio accepts a full mono or stereo WAV (30 seconds minimum, 40 MB maximum) and automatically creates a separate 30-second PCM preview from its opening, with a short fade-out. The master stays private for purchases. There is no separate preview upload. The generated clip can be played before publication.

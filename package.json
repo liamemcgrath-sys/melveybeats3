@@ -1,13 +1,13 @@
 {
   "name": "melvey-beats",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node scripts/test-database.mjs && tsc tests/core.test.ts --outDir work/tests --target ES2022 --module commonjs --moduleResolution node --esModuleInterop --skipLibCheck && node --test work/tests/tests/core.test.js"
+    "test": "node scripts/test-database.mjs && tsc tests/core.test.ts tests/email-verification.test.ts tests/wav-preview.test.ts --outDir work/tests --target ES2022 --module commonjs --moduleResolution node --esModuleInterop --skipLibCheck && node --test work/tests/tests/*.test.js"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
