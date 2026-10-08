@@ -23,8 +23,15 @@ export async function identity() {
   return { id: user.id, email: user.email, name: String(user.user_metadata?.name || user.email), verified: Boolean(user.email_confirmed_at) };
 }
 
-export async function isAdmin(user: {id:string}) {
-  const {data,error}=await getSupabaseAdmin().from("melvey_settings").select("admin_owner_id").eq("id","main").maybeSingle();
+export async function isAdmin(user: {id:string;email?:string;verified?:boolean}) {
+  const client=getSupabaseAdmin();
+  const {data,error}=await client.from("melvey_settings").select("admin_owner_id,admin_owner_email").eq("id","main").maybeSingle();
+  if(error||!data)return false;
+  if(data.admin_owner_email){
+    if(!user.verified||user.email?.toLowerCase()!==data.admin_owner_email.toLowerCase())return false;
+    const result=await client.rpc("melvey_enroll_owner",{p_owner:user.id});
+    return !result.error&&result.data===user.id;
+  }
   return !error && Boolean(data?.admin_owner_id) && data!.admin_owner_id===user.id;
 }
 

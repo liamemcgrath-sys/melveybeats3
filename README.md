@@ -8,7 +8,7 @@ The original 15 listings were removed from `public.beats` and copied with every 
 
 ## Owner setup
 
-Studio access is tied to a Supabase user ID in `melvey_settings.admin_owner_id`. An authenticated account may enroll only with the private one-time setup code. The server stores only the SHA-256 verifier in `MELVEY_ADMIN_ENROLLMENT_HASH`; the code itself is not stored in Vercel or this repository. Once claimed, another account cannot claim or overwrite ownership, even with the same setup link. Native email/password signup and confirmation are handled by Supabase. Production account email delivery uses the project's existing Supabase Auth mail configuration.
+Studio access is tied to a Supabase user ID in `melvey_settings.admin_owner_id`. When `melvey_settings.admin_owner_email` is configured, only the account with that confirmed email can activate Studio; signing in binds its user ID automatically. Email settings are private deployment data and are not committed here. Without an email reservation, an authenticated account may enroll only with the private one-time setup code. The server stores only the SHA-256 verifier in `MELVEY_ADMIN_ENROLLMENT_HASH`; the code itself is not stored in Vercel or this repository. Once claimed, another account cannot claim or overwrite ownership, even with the same setup link. Native email/password signup and confirmation are handled by Supabase. Production account email delivery uses the project's existing Supabase Auth mail configuration.
 
 ## Payments and downloads
 
